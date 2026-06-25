@@ -2,14 +2,20 @@ import { useState } from "react";
 
 import { editarServicio, eliminarServicio } from "../../services/servicios";
 
-function ListaServicios({ servicios, recargarServicios }: any) {
+function ListaServicios({
+  servicios,
+  recargarServicios,
+  profesionales = [],
+}: any) {
   const [editandoId, setEditandoId] = useState<number | null>(null);
 
   const [formEditar, setFormEditar] = useState({
     nombre: "",
     descripcion: "",
+    categoria: "",
     duracion: "",
     precio: "",
+    profesionalId: "",
   });
 
   const handleEliminar = async (id: number) => {
@@ -28,8 +34,12 @@ function ListaServicios({ servicios, recargarServicios }: any) {
     setFormEditar({
       nombre: servicio.nombre,
       descripcion: servicio.descripcion,
+      categoria: servicio.categoria,
       duracion: servicio.duracion,
       precio: servicio.precio,
+      profesionalId: servicio.profesional_id
+        ? String(servicio.profesional_id)
+        : "",
     });
   };
 
@@ -38,10 +48,16 @@ function ListaServicios({ servicios, recargarServicios }: any) {
 
     if (!token) return;
 
+    if (!formEditar.profesionalId) {
+      alert("Seleccioná un profesional");
+      return;
+    }
+
     await editarServicio(token, editandoId!, {
       ...formEditar,
       duracion: Number(formEditar.duracion),
       precio: Number(formEditar.precio),
+      profesional_id: Number(formEditar.profesionalId),
     });
 
     setEditandoId(null);
@@ -75,6 +91,25 @@ function ListaServicios({ servicios, recargarServicios }: any) {
                     })
                   }
                 />
+                <select
+                  value={formEditar.categoria}
+                  onChange={(e) =>
+                    setFormEditar({
+                      ...formEditar,
+                      categoria: e.target.value,
+                    })
+                  }
+                  className="rounded-xl border border-gray-200 px-4 py-3"
+                >
+                  <option value="Uñas">Uñas</option>
+                  <option value="Pies">Pies</option>
+                  <option value="Perfilados">Perfilados</option>
+                  <option value="Depilación Láser">Depilación Láser</option>
+                  <option value="Reflexología">Reflexología</option>
+                  <option value="Masajes">Masajes</option>
+                  <option value="Sesiones Faciales">Sesiones Faciales</option>
+                  <option value="Micropigmentación">Micropigmentación</option>
+                </select>
 
                 <input
                   className="rounded-xl border border-gray-200 px-4 py-3 outline-none transition focus:border-pink-400 focus:ring-2 focus:ring-pink-200"
@@ -109,6 +144,25 @@ function ListaServicios({ servicios, recargarServicios }: any) {
                   }
                 />
 
+                <select
+                  value={formEditar.profesionalId}
+                  onChange={(e) =>
+                    setFormEditar({
+                      ...formEditar,
+                      profesionalId: e.target.value,
+                    })
+                  }
+                  className="rounded-xl border border-gray-200 px-4 py-3"
+                >
+                  <option value="">Seleccionar profesional</option>
+
+                  {profesionales.map((profesional: any) => (
+                    <option key={profesional.id} value={String(profesional.id)}>
+                      {profesional.nombre}
+                    </option>
+                  ))}
+                </select>
+
                 <div className="flex gap-3">
                   <button
                     onClick={guardarEdicion}
@@ -131,6 +185,10 @@ function ListaServicios({ servicios, recargarServicios }: any) {
                   <h3 className="text-xl font-semibold text-gray-800">
                     {servicio.nombre}
                   </h3>
+
+                  <p className="mt-1 text-sm font-semibold text-fuchsia-600">
+                    {servicio.categoria}
+                  </p>
 
                   <p className="mt-1 text-gray-500">{servicio.descripcion}</p>
 

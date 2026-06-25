@@ -1,14 +1,28 @@
 import { useEffect, useState } from "react";
-import { cancelarTurno, obtenerMisTurnos } from "../services/turnos";
+import {
+  cancelarTurno,
+  obtenerMisTurnos,
+  ocultarTurno,
+} from "../services/turnos";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 function MisTurnosPage() {
   const { slug } = useParams();
   const [turnos, setTurnos] = useState<any[]>([]);
+  const [pagina, setPagina] = useState(1);
+
+  const porPagina = 3;
+  const indexFin = pagina * porPagina;
+  const indexInicio = indexFin - porPagina;
+
+  const turnosPaginados = turnos.slice(indexInicio, indexFin);
+
+  const totalPaginas = Math.ceil(turnos.length / porPagina);
 
   useEffect(() => {
     cargar();
+    setPagina(1);
   }, []);
 
   const cargar = async () => {
@@ -17,7 +31,7 @@ function MisTurnosPage() {
     if (!token) return;
 
     const data = await obtenerMisTurnos(token);
-
+    console.log(data);
     setTurnos(data);
   };
 
@@ -27,6 +41,16 @@ function MisTurnosPage() {
     if (!token) return;
 
     await cancelarTurno(token, turnoId);
+
+    cargar();
+  };
+
+  const handleEliminar = async (turnoId: number) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) return;
+
+    await ocultarTurno(token, turnoId);
 
     cargar();
   };
@@ -66,9 +90,9 @@ function MisTurnosPage() {
         <div className="flex flex-wrap items-center justify-center gap-4">
           <Link
             to={`/${slug}/dashboard`}
-            className="rounded-2xl bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+            className="rounded-2xl border border-gray-200 bg-white px-6 py-2.5 text-sm font-semibold text-gray-800 shadow-sm transition-all duration-300 hover:border-pink-300 hover:bg-pink-50 hover:text-pink-700 hover:shadow-lg"
           >
-            Volver al Dashboard
+            Volver a Obtener Turno
           </Link>
 
           <Link
@@ -76,6 +100,13 @@ function MisTurnosPage() {
             className="rounded-2xl border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
           >
             Ir al Inicio
+          </Link>
+
+          <Link
+            to={`/${slug}/historial`}
+            className="rounded-2xl border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
+          >
+            🗄️ Historial
           </Link>
         </div>
 
@@ -92,7 +123,7 @@ function MisTurnosPage() {
           </div>
         ) : (
           <div className="grid w-full max-w-6xl grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
-            {turnos.map((t: any) => (
+            {turnosPaginados.map((t: any) => (
               <div
                 key={t.id}
                 className="group relative overflow-hidden rounded-[32px] border border-white/60 bg-white/90 p-7 shadow-[0_10px_40px_rgba(0,0,0,0.05)] backdrop-blur transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(0,0,0,0.12)]"
@@ -103,11 +134,29 @@ function MisTurnosPage() {
                 <div className="relative z-10 flex h-full flex-col items-center text-center">
                   {/* FECHA */}
                   <div className="mb-5 rounded-full bg-black px-5 py-2 text-sm font-semibold tracking-wide text-white shadow-lg">
-                    {t.fecha}
+                    {new Date(t.hora_inicio).toLocaleDateString("es-AR", {
+                      weekday: "long",
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    })}
                   </div>
 
-                  {/* HORA */}
-                  <h2 className="text-3xl font-bold text-gray-900">{t.hora}</h2>
+                  {/* HORARIO */}
+                  <h2 className="text-3xl font-bold text-gray-900">
+                    {new Date(t.hora_inicio).toLocaleTimeString("es-AR", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </h2>
+
+                  <p className="mt-1 text-sm text-gray-500">
+                    hasta{" "}
+                    {new Date(t.hora_fin).toLocaleTimeString("es-AR", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
 
                   {/* SERVICIO */}
                   <div className="mt-6 flex flex-col items-center">
@@ -117,6 +166,16 @@ function MisTurnosPage() {
 
                     <p className="mt-2 text-xl font-semibold text-gray-800">
                       {t.servicio?.nombre}
+                    </p>
+                  </div>
+
+                  <div className="mt-4 flex flex-col items-center">
+                    <span className="text-xs uppercase tracking-[0.2em] text-gray-400">
+                      Profesional
+                    </span>
+
+                    <p className="mt-2 font-medium text-gray-700">
+                      {t.profesional?.nombre || "Sin asignar"}
                     </p>
                   </div>
 
@@ -132,17 +191,57 @@ function MisTurnosPage() {
                   </div>
 
                   {/* BUTTON */}
-                  {t.estado !== "cancelado" && t.estado !== "finalizado" && (
+                  <button
+                    onClick={() => {
+                      const ok = window.confirm("¿Archivar este turno?");
+                      if (ok) handleEliminar(t.id);
+                    }}
+                    className="mt-3 w-full rounded-2xl bg-gray-700 py-3 text-sm font-semibold text-white hover:bg-gray-800"
+                  >
+                    Archivar turno
+                  </button>
+                  {(t.estado === "cancelado" || t.estado === "finalizado") && (
                     <button
-                      onClick={() => handleCancelar(t.id)}
-                      className="mt-8 w-full rounded-2xl bg-red-500 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-red-600 hover:shadow-lg"
+                      onClick={() => {
+                        const ok = window.confirm(
+                          "¿Querés ocultar este turno? Luego podrás verlo desde el historial.",
+                        );
+
+                        if (ok) {
+                          handleEliminar(t.id);
+                        }
+                      }}
+                      className="mt-3 w-full rounded-2xl bg-gray-700 py-3 text-sm font-semibold text-white hover:bg-gray-800"
                     >
-                      Cancelar turno
+                      Archivar turno
                     </button>
                   )}
                 </div>
               </div>
             ))}
+          </div>
+        )}
+        {turnos.length > porPagina && (
+          <div className="mt-10 flex items-center justify-center gap-4">
+            <button
+              onClick={() => setPagina((p) => Math.max(p - 1, 1))}
+              disabled={pagina === 1}
+              className="rounded-xl bg-gray-200 px-4 py-2 text-sm font-semibold disabled:opacity-40"
+            >
+              Anterior
+            </button>
+
+            <span className="text-sm font-semibold text-gray-700">
+              Página {pagina} de {totalPaginas}
+            </span>
+
+            <button
+              onClick={() => setPagina((p) => Math.min(p + 1, totalPaginas))}
+              disabled={pagina === totalPaginas}
+              className="rounded-xl bg-gray-200 px-4 py-2 text-sm font-semibold disabled:opacity-40"
+            >
+              Siguiente
+            </button>
           </div>
         )}
       </div>

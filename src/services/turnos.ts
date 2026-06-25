@@ -35,9 +35,11 @@ export const obtenerTurnosAdmin = async (token: string) => {
 export const obtenerHorariosDisponibles = async (
   token: string,
   fecha: string,
+  profesionalId: number,
+  servicioId: number,
 ) => {
   const response = await axios.get(
-    `${api}/horarios-disponibles?fecha=${fecha}`,
+    `${api}/horarios-disponibles?fecha=${fecha}&profesional_id=${profesionalId}&servicio_id=${servicioId}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -79,4 +81,34 @@ export const cancelarTurno = async (token: string, turnoId: number) => {
   );
 
   return response.data;
+};
+
+export const ocultarTurno = async (token: string, turnoId: number) => {
+  await axios.delete(`${api}/mis-turnos/${turnoId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const obtenerTurnosArchivados = async (token: string) => {
+  const response = await axios.get(`${api}/mis-turnos-archivados`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+};
+
+export const restaurarTurno = async (token: string, turnoId: number) => {
+  await axios.put(
+    `${api}/turnos/${turnoId}/mostrar`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
 };

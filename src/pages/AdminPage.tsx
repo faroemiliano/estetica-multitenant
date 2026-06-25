@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CrearServicioForm from "../components/admin/CrearServicioForm";
@@ -12,10 +13,16 @@ import { obtenerStats } from "../services/dashboard";
 
 import { useParams } from "react-router-dom";
 
+const api = import.meta.env.VITE_API_URL;
+
 function AdminPage() {
   const { slug } = useParams();
   const [servicios, setServicios] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
+
+  const [cumpleaneros, setCumpleaneros] = useState<any[]>([]);
+
+  const [profesionales, setProfesionales] = useState<any[]>([]);
 
   const [mostrarServicios, setMostrarServicios] = useState(false);
 
@@ -43,9 +50,43 @@ function AdminPage() {
     setServicios(data);
   };
 
+  const cargarProfesionales = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/profesionales`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      setProfesionales(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const cargarCumpleaneros = async () => {
+    const token = localStorage.getItem("token");
+
+    const response = await axios.get(`${api}/clientes/cumpleanios`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    setCumpleaneros(response.data);
+    console.log(response.data);
+  };
+
   useEffect(() => {
     cargarServicios();
     cargarStats();
+    cargarProfesionales();
+    cargarCumpleaneros();
   }, []);
 
   if (!stats) {
@@ -58,142 +99,165 @@ function AdminPage() {
 
   return (
     <AdminLayout>
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
-        <h1 className="text-center text-3xl font-bold text-gray-800">
-          Panel Admin
-        </h1>
+      {/* HEADER */}
+      <div className="mb-4 text-center">
+        <h1 className="text-2xl font-black text-gray-900">Panel Admin</h1>
+        <p className="text-sm text-gray-500">Gestión rápida de tu estética</p>
+      </div>
 
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 ">
         {/* STATS */}
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-          <div className="rounded-xl bg-white p-4 text-center shadow-sm">
-            <p className="text-xs text-gray-500">Turnos Hoy</p>
-
-            <h2 className="text-2xl font-bold">{stats.turnos_hoy}</h2>
-          </div>
-
-          <div className="rounded-xl bg-white p-4 text-center shadow-sm">
-            <p className="text-xs text-gray-500">Pendientes</p>
-
-            <h2 className="text-2xl font-bold">{stats.pendientes}</h2>
-          </div>
-
-          <div className="rounded-xl bg-white p-4 text-center shadow-sm">
-            <p className="text-xs text-gray-500">Confirmados</p>
-
-            <h2 className="text-2xl font-bold">{stats.confirmados}</h2>
-          </div>
-
-          <div className="rounded-xl bg-white p-4 text-center shadow-sm">
-            <p className="text-xs text-gray-500">Cancelados</p>
-
-            <h2 className="text-2xl font-bold">{stats.cancelados}</h2>
-          </div>
-
-          <div className="rounded-xl bg-white p-4 text-center shadow-sm">
-            <p className="text-xs text-gray-500">Finalizados</p>
-
-            <h2 className="text-2xl font-bold">{stats.finalizados}</h2>
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-3">
+          {/* STATS */}
+          <div className="grid grid-cols-5 gap-2">
+            {[
+              { label: "Hoy", value: stats.turnos_hoy },
+              { label: "Pendiente", value: stats.pendientes },
+              { label: "confirmado", value: stats.confirmados },
+              { label: "Cancelado", value: stats.cancelados },
+              { label: "Fin", value: stats.finalizados },
+            ].map((s, i) => (
+              <div
+                key={i}
+                className="flex flex-col items-center justify-center rounded-xl bg-white py-2 shadow-sm"
+              >
+                <p className="text-[15px] text-gray-500">{s.label}</p>
+                <h2 className="text-sm font-bold leading-none">{s.value}</h2>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* CALENDARIO */}
-        <div className="rounded-xl bg-white p-4 shadow-sm">
-          <CalendarioTurnos />
+        <div className="rounded-2xl bg-white shadow-sm overflow-hidden border border-gray-100">
+          {/* HEADER */}
+          <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100 bg-gray-50">
+            <h2 className="text-xs font-semibold text-gray-700 flex items-center gap-1">
+              📅 Calendario
+            </h2>
+          </div>
+
+          {/* CONTENIDO */}
+          <div className="max-h-[360px] overflow-y-auto p-2">
+            <CalendarioTurnos />
+          </div>
         </div>
 
-        {/* BOTONES */}
-        <div className="flex flex-wrap gap-3">
-          <button
-            onClick={() => navigate(`/${slug}/admin/profesionales`)}
-            className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-medium text-white"
-          >
-            Profesionales
-          </button>
-          <button
-            onClick={() => setMostrarServicios(true)}
-            className="rounded-xl bg-black px-5 py-3 text-sm font-medium text-white"
-          >
-            Mis Servicios
-          </button>
+        {/* CUMPLEAÑOS */}
+        {cumpleaneros.length > 0 && (
+          <div className="rounded-2xl border border-pink-200 bg-pink-50 p-3 text-sm">
+            <h2 className="mb-3 font-bold text-pink-700">
+              🎂 Cumpleaños de hoy
+            </h2>
 
-          <button
-            onClick={() => setMostrarTurnos(true)}
-            className="rounded-xl bg-gray-800 px-5 py-3 text-sm font-medium text-white"
-          >
-            Ver Turnos
-          </button>
-          <button
-            onClick={() => navigate(`/${slug}/admin/clientes`)}
-            className="rounded-xl bg-pink-600 px-5 py-3 text-sm font-medium text-white"
-          >
-            Ver Clientes
-          </button>
-          <button
-            onClick={() => navigate(`/${slug}/admin/config`)}
-            className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white"
-          >
-            Configuración
-          </button>
+            {cumpleaneros.map((c: any) => (
+              <div
+                key={c.id}
+                className="flex items-center justify-between py-1"
+              >
+                <span className="text-sm">{c.nombre_completo}</span>
 
-          <button
-            onClick={() => navigate(`/${slug}/admin/horarios`)}
-            className="rounded-xl bg-violet-600 px-5 py-3 text-sm font-medium text-white"
-          >
-            Horarios de Atención
-          </button>
-        </div>
-
-        {/* MODAL SERVICIOS */}
-        {mostrarServicios && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
-              <div className="mb-6 flex items-center justify-between">
-                <h2 className="text-2xl font-bold">Servicios</h2>
-
-                <button
-                  onClick={() => setMostrarServicios(false)}
-                  className="rounded-lg bg-gray-100 px-4 py-2"
+                <a
+                  className="text-sm font-semibold text-pink-600"
+                  href={`https://wa.me/${c.telefono}?text=Feliz cumpleaños ${c.nombre_completo}! 🎂`}
+                  target="_blank"
                 >
-                  Cerrar
-                </button>
+                  WhatsApp
+                </a>
               </div>
-
-              <div className="flex flex-col gap-4">
-                <div className="rounded-xl border border-gray-200 p-4">
-                  <CrearServicioForm recargarServicios={cargarServicios} />
-                </div>
-
-                <div className="rounded-xl border border-gray-200 p-4">
-                  <ListaServicios
-                    servicios={servicios}
-                    recargarServicios={cargarServicios}
-                  />
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         )}
 
-        {/* MODAL TURNOS */}
-        {mostrarTurnos && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
-              <div className="mb-6 flex items-center justify-between">
-                <h2 className="text-2xl font-bold">Turnos</h2>
+        {/* ACTION GRID */}
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+          {[
+            {
+              label: "👩‍⚕️ Profesionales",
+              color: "bg-emerald-600",
+              action: () => navigate(`/${slug}/admin/profesionales`),
+            },
+            {
+              label: "🧾 Servicios",
+              color: "bg-black",
+              action: () => setMostrarServicios(true),
+            },
+            {
+              label: "📅 Turnos",
+              color: "bg-gray-800",
+              action: () => setMostrarTurnos(true),
+            },
+            {
+              label: "👥 Clientes",
+              color: "bg-pink-600",
+              action: () => navigate(`/${slug}/admin/clientes`),
+            },
+            {
+              label: "⚙️ Config",
+              color: "bg-blue-600",
+              action: () => navigate(`/${slug}/admin/config`),
+            },
+            {
+              label: "⏰ Horarios",
+              color: "bg-violet-600",
+              action: () => navigate(`/${slug}/admin/horarios`),
+            },
+          ].map((b, i) => (
+            <button
+              key={i}
+              onClick={b.action}
+              className={`${b.color} rounded-2xl p-4 text-sm font-bold text-white shadow-sm active:scale-95 transition`}
+            >
+              {b.label}
+            </button>
+          ))}
 
-                <button
-                  onClick={() => setMostrarTurnos(false)}
-                  className="rounded-lg bg-gray-100 px-4 py-2"
-                >
-                  Cerrar
-                </button>
-              </div>
+          <button
+            onClick={() => navigate(`/${slug}`)}
+            className="col-span-2 rounded-2xl border border-gray-300 bg-white p-4 text-sm font-bold text-gray-700 active:scale-95 transition"
+          >
+            🏠 Ver página pública
+          </button>
+        </div>
+      </div>
 
+      {/* MODAL SERVICIOS */}
+      {mostrarServicios && (
+        <div className="fixed inset-0 z-50 bg-black/40 p-4 flex items-end md:items-center justify-center">
+          <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white shadow-2xl">
+            <div className="sticky top-0 flex items-center justify-between border-b bg-white p-4">
+              <h2 className="text-lg font-bold">Servicios</h2>
+              <button onClick={() => setMostrarServicios(false)}>Cerrar</button>
+            </div>
+
+            <div className="p-4 space-y-4">
+              <CrearServicioForm recargarServicios={cargarServicios} />
+
+              <ListaServicios
+                servicios={servicios}
+                recargarServicios={cargarServicios}
+                profesionales={profesionales}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL TURNOS */}
+      {mostrarTurnos && (
+        <div className="fixed inset-0 z-50 bg-black/40 p-4 flex items-end md:items-center justify-center">
+          <div className="w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white shadow-2xl">
+            <div className="sticky top-0 flex items-center justify-between border-b bg-white p-4">
+              <h2 className="text-lg font-bold">Turnos</h2>
+              <button onClick={() => setMostrarTurnos(false)}>Cerrar</button>
+            </div>
+
+            <div className="p-4">
               <ListaTurnos />
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }

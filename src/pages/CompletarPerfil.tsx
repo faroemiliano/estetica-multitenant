@@ -19,6 +19,13 @@ function CompletarPerfilPage() {
   });
 
   const guardarPerfil = async () => {
+    if (!/^\+\d{7,15}$/.test(form.telefono.replace(/\s/g, ""))) {
+      alert(
+        "Ingresá un teléfono válido con código de país. Ej: +5491123456789",
+      );
+      return;
+    }
+
     try {
       await completarPerfil(token, form);
 
@@ -96,16 +103,31 @@ function CompletarPerfilPage() {
             </label>
 
             <input
-              type="text"
-              placeholder="+54 11..."
+              type="tel"
+              placeholder="+54 11 12345678"
+              value={form.telefono}
               className="w-full rounded-2xl border border-gray-200 px-4 py-3 outline-none transition focus:border-black"
-              onChange={(e) =>
+              onChange={(e) => {
+                let value = e.target.value;
+
+                // Mantiene solo + y números
+                value = value.replace(/[^\d+]/g, "");
+
+                // Solo permite un +
+                if (value.includes("+")) {
+                  value = "+" + value.replace(/\+/g, "").replace(/[^\d]/g, "");
+                }
+
                 setForm({
                   ...form,
-                  telefono: e.target.value,
-                })
-              }
+                  telefono: value,
+                });
+              }}
             />
+
+            <p className="mt-1 text-xs text-gray-500">
+              Ingresá el código de país. Ej: +54 11..., +34..., +1...
+            </p>
           </div>
 
           {/* BUTTON */}

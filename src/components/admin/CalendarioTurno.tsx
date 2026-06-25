@@ -1,56 +1,59 @@
 import { useEffect, useState } from "react";
 
 import FullCalendar from "@fullcalendar/react";
-
+import esLocale from "@fullcalendar/core/locales/es";
 import dayGridPlugin from "@fullcalendar/daygrid";
-
 import timeGridPlugin from "@fullcalendar/timegrid";
-
 import interactionPlugin from "@fullcalendar/interaction";
 
 import { obtenerTurnosAdmin } from "../../services/turnos";
+import AgendaTurnos from "./AgendaTurnos";
 
 function CalendarioTurnos() {
   const [eventos, setEventos] = useState<any[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
 
   const [turnosDia, setTurnosDia] = useState<any[]>([]);
-
   const [fechaSeleccionada, setFechaSeleccionada] = useState("");
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  // detect mobile
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // load data
   useEffect(() => {
     cargarTurnos();
   }, []);
 
   const cargarTurnos = async () => {
     const token = localStorage.getItem("token");
-
     if (!token) return;
 
     const data = await obtenerTurnosAdmin(token);
 
     const eventosFormateados = data.map((turno: any) => ({
+      id: turno.id,
       title: turno.servicio?.nombre || "Servicio",
-
-      start: `${turno.fecha}T${turno.hora}`,
+      start: turno.hora_inicio,
+      end: turno.hora_fin,
 
       extendedProps: {
-        fecha: turno.fecha,
-
-        hora: turno.hora,
-
         cliente: turno.cliente?.email,
-
         estado: turno.estado,
-
         descripcion: turno.servicio?.descripcion,
-
         servicio: turno.servicio?.nombre,
+        profesional: turno.profesional?.nombre,
       },
 
       color:
         turno.estado === "confirmado"
-          ? "#22c55e"
+          ? "#10b981"
           : turno.estado === "cancelado"
             ? "#ef4444"
             : turno.estado === "finalizado"
@@ -61,127 +64,110 @@ function CalendarioTurnos() {
     setEventos(eventosFormateados);
   };
 
+  // FIX timezone-safe
+  const getLocalDate = (date: string | Date) => {
+    const d = new Date(date);
+
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+      d.getDate(),
+    ).padStart(2, "0")}`;
+  };
+
+  const hoyStr = getLocalDate(new Date());
+
   return (
-    <div className="w-full rounded-2xl bg-white p-4 shadow-sm md:p-6">
+    <div className="overflow-hidden rounded-3xl border bg-white shadow-lg">
       {/* HEADER */}
-      <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Calendario</h2>
-        </div>
-
-        {/* LEYENDA */}
-        <div className="flex flex-wrap gap-3 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-green-500" />
-            <span>Confirmado</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-orange-400" />
-            <span>Pendiente</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-red-500" />
-            <span>Cancelado</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-gray-500" />
-            <span>Finalizado</span>
-          </div>
-        </div>
+      <div className="border-b p-4">
+        <h2 className="text-lg font-bold">Calendario de Turnos</h2>
+        <p className="text-xs text-gray-500">Vista de reservas</p>
       </div>
 
-      {/* CALENDAR */}
-      <div className="w-full overflow-hidden rounded-2xl border border-gray-200 bg-white">
-        <div className="w-full p-2">
+      {/* MOBILE */}
+      {isMobile ? (
+        <div className="p-3">
+          <AgendaTurnos
+            eventos={eventos.filter((e) => getLocalDate(e.start) >= hoyStr)}
+          />
+        </div>
+      ) : (
+        <div className="p-4">
           <FullCalendar
-            plugins={[dayGridPlugin, interactionPlugin]}
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView="dayGridMonth"
+            locale={esLocale}
+            height="auto"
+            contentHeight="auto"
+            expandRows
+            dayMaxEvents={3}
+            moreLinkClick="popover"
             headerToolbar={{
               left: "prev,next today",
               center: "title",
-              right: "dayGridMonth,dayGridWeek",
+              right: "dayGridMonth,timeGridWeek",
             }}
-            height="auto"
-            contentHeight={700}
-            expandRows
-            stickyHeaderDates
-            dayMaxEvents={2}
-            moreLinkClick="popover"
             events={eventos}
             dateClick={(info) => {
               const eventosDelDia = eventos.filter(
-                (evento: any) => evento.extendedProps.fecha === info.dateStr,
+                (e) => getLocalDate(e.start) === info.dateStr,
               );
 
               setTurnosDia(eventosDelDia);
-
               setFechaSeleccionada(info.dateStr);
-
               setModalOpen(true);
             }}
           />
-          {modalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-              <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
-                <div className="mb-6 flex items-center justify-between">
-                  <div>
-                    <h2 className="text-2xl font-bold">Turnos del día</h2>
-
-                    <p className="text-sm text-gray-500">{fechaSeleccionada}</p>
-                  </div>
-
-                  <button
-                    onClick={() => setModalOpen(false)}
-                    className="rounded-lg bg-gray-100 px-4 py-2"
-                  >
-                    Cerrar
-                  </button>
-                </div>
-
-                <div className="flex flex-col gap-4">
-                  {turnosDia.length === 0 ? (
-                    <p>No hay turnos</p>
-                  ) : (
-                    turnosDia.map((turno: any, index: number) => (
-                      <div
-                        key={index}
-                        className="rounded-xl border border-gray-200 p-4"
-                      >
-                        <div className="mb-2 flex items-center justify-between">
-                          <h3 className="text-lg font-semibold">
-                            {turno.extendedProps.servicio}
-                          </h3>
-
-                          <span className="text-sm text-gray-500">
-                            {turno.extendedProps.hora}
-                          </span>
-                        </div>
-
-                        <p className="text-sm text-gray-600">
-                          Cliente: {turno.extendedProps.cliente}
-                        </p>
-
-                        <p className="mt-2 text-sm">
-                          {turno.extendedProps.descripcion}
-                        </p>
-
-                        <div className="mt-3">
-                          <span className="rounded-full bg-gray-100 px-3 py-1 text-xs">
-                            {turno.extendedProps.estado}
-                          </span>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
-      </div>
+      )}
+
+      {/* MODAL */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3 backdrop-blur-sm">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-5 shadow-xl">
+            <div className="mb-4 flex justify-between">
+              <div>
+                <h2 className="text-lg font-bold">Turnos del día</h2>
+                <p className="text-xs text-gray-500">
+                  {new Date(fechaSeleccionada).toLocaleDateString("es-AR")}
+                </p>
+              </div>
+
+              <button
+                onClick={() => setModalOpen(false)}
+                className="rounded-lg bg-gray-100 px-3 py-1 text-sm"
+              >
+                Cerrar
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {turnosDia.length === 0 ? (
+                <div className="rounded-xl border p-4 text-center text-sm text-gray-500">
+                  Sin turnos
+                </div>
+              ) : (
+                turnosDia.map((t, i) => (
+                  <div key={i} className="rounded-xl border p-3">
+                    <p className="font-semibold">{t.extendedProps.servicio}</p>
+                    <p className="text-xs text-gray-500">
+                      {t.extendedProps.descripcion}
+                    </p>
+
+                    <div className="mt-2 text-xs">
+                      Cliente: {t.extendedProps.cliente} <br />
+                      Profesional: {t.extendedProps.profesional}
+                    </div>
+
+                    <span className="mt-2 inline-block text-xs font-bold">
+                      {t.extendedProps.estado}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

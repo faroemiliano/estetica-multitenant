@@ -12,21 +12,17 @@ function Servicios() {
   );
 
   useEffect(() => {
-    if (slug) {
-      cargarServicios();
-    }
+    if (!slug || slug === "admin") return;
+
+    cargarServicios();
   }, [slug]);
 
   const cargarServicios = async () => {
-    try {
-      const data = await obtenerServiciosPublicos(slug as string);
+    if (!slug || slug === "admin") return;
 
-      setServicios(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.log("Error cargando servicios:", error);
-    }
+    const data = await obtenerServiciosPublicos(slug);
+    setServicios(Array.isArray(data) ? data : []);
   };
-
   const serviciosAgrupados = servicios.reduce((acc: any, servicio: any) => {
     const id = servicio.profesional?.id;
     const nombre = servicio.profesional?.nombre;

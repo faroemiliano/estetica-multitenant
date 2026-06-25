@@ -50,22 +50,37 @@ function Navbar() {
 
         {/* CENTER */}
         <div className="hidden items-center justify-center gap-3 md:flex">
-          {token && (
-            <>
-              <Link
-                to={`/${slug}/dashboard`}
-                className="rounded-2xl px-5 py-2 text-sm font-medium text-gray-700 transition-all duration-300 hover:bg-gray-100 hover:text-black"
-              >
-                Dashboard
-              </Link>
+          {token && user?.role === "admin" ? (
+            <Link
+              to={`/${slug}/admin`}
+              className="rounded-2xl border border-gray-200 bg-white px-6 py-2.5 text-sm font-semibold text-gray-800 shadow-sm transition-all duration-300 hover:border-pink-300 hover:bg-pink-50 hover:text-pink-700 hover:shadow-lg"
+            >
+              Panel Admin
+            </Link>
+          ) : (
+            token && (
+              <>
+                <Link
+                  to={`/${slug}/dashboard`}
+                  className="rounded-2xl border border-gray-200 bg-white px-6 py-2.5 text-sm font-semibold text-gray-800 shadow-sm transition-all duration-300 hover:border-pink-300 hover:bg-pink-50 hover:text-pink-700 hover:shadow-lg"
+                >
+                  Obtener Turno
+                </Link>
 
-              <Link
-                to={`/${slug}/mis-turnos`}
-                className="rounded-2xl px-5 py-2 text-sm font-medium text-gray-700 transition-all duration-300 hover:bg-gray-100 hover:text-black"
-              >
-                Mis turnos
-              </Link>
-            </>
+                <Link
+                  to={`/${slug}/mis-turnos`}
+                  className="rounded-2xl border border-gray-200 bg-white px-6 py-2.5 text-sm font-semibold text-gray-800 shadow-sm transition-all duration-300 hover:border-pink-300 hover:bg-pink-50 hover:text-pink-700 hover:shadow-lg"
+                >
+                  Mis turnos
+                </Link>
+                <Link
+                  to={`/${slug}/historial`}
+                  className="rounded-2xl border border-gray-200 bg-white px-6 py-2.5 text-sm font-semibold text-gray-800 shadow-sm transition-all duration-300 hover:border-pink-300 hover:bg-pink-50 hover:text-pink-700 hover:shadow-lg"
+                >
+                  🗄️ Historial
+                </Link>
+              </>
+            )
           )}
         </div>
 

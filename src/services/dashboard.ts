@@ -1,9 +1,9 @@
 import axios from "axios";
 
-const API = "http://127.0.0.1:8000";
+const api = import.meta.env.VITE_API_URL;
 
 export const obtenerStats = async (token: string) => {
-  const res = await axios.get(`${API}/dashboard/stats`, {
+  const res = await axios.get(`${api}/dashboard/stats`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

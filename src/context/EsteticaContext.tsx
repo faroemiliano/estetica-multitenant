@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { obtenerEstetica } from "../services/esteticas";
+import { useParams } from "react-router-dom";
 
 type Estetica = {
   id: number;
@@ -45,7 +46,7 @@ export function EsteticaProvider({ children }: any) {
   const [estetica, setEstetica] = useState<Estetica | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const slug = window.location.pathname.split("/")[1];
+  const { slug } = useParams();
   console.log("ESTETICA CONTEXT SLUG:", slug);
   const load = async () => {
     setLoading(true);
@@ -59,6 +60,7 @@ export function EsteticaProvider({ children }: any) {
   };
 
   useEffect(() => {
+    if (!slug) return;
     load();
   }, [slug]);
 

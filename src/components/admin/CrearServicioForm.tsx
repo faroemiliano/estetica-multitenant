@@ -9,6 +9,7 @@ function CrearServicioForm({ recargarServicios }: any) {
   const [form, setForm] = useState({
     nombre: "",
     descripcion: "",
+    categoria: "",
     duracion: "",
     precio: "",
     profesional_id: "",
@@ -40,6 +41,7 @@ function CrearServicioForm({ recargarServicios }: any) {
       setForm({
         nombre: "",
         descripcion: "",
+        categoria: "",
         duracion: "",
         precio: "",
         profesional_id: "",
@@ -102,6 +104,34 @@ function CrearServicioForm({ recargarServicios }: any) {
                 {p.nombre}
               </option>
             ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-semibold text-gray-700">
+            Categoría
+          </label>
+
+          <select
+            value={form.categoria}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                categoria: e.target.value,
+              })
+            }
+            className="rounded-2xl border border-gray-200 bg-gray-50 px-5 py-4 outline-none transition-all duration-300 focus:border-pink-400 focus:bg-white focus:ring-4 focus:ring-pink-100"
+          >
+            <option value="">Seleccionar categoría</option>
+
+            <option value="Uñas">Manos</option>
+            <option value="Pies">Pies</option>
+            <option value="Perfilados">Perfilados</option>
+            <option value="Depilación Láser">Depilación Láser</option>
+            <option value="Reflexología">Reflexología</option>
+            <option value="Masajes">Masajes</option>
+            <option value="Sesiones Faciales">Sesiones Faciales</option>
+            <option value="Micropigmentación">Micropigmentación</option>
           </select>
         </div>
         {/* NOMBRE */}

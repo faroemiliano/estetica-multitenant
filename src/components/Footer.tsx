@@ -2,25 +2,43 @@ import { useEstetica } from "../context/EsteticaContext";
 
 function Footer() {
   const { estetica } = useEstetica();
-  console.log("ESTETICA EN FOOTER:", estetica);
+
+  let horarios = [];
+
+  try {
+    horarios = Array.isArray(estetica?.horarios)
+      ? estetica.horarios
+      : estetica?.horarios
+        ? JSON.parse(estetica.horarios)
+        : [];
+  } catch {
+    horarios = [];
+  }
+  console.log("FOOTER RENDER");
+  console.log("ESTETICA:", estetica);
   return (
-    <footer className="flex flex-col items-center border-t border-gray-200 bg-[#faf7f5]">
-      {/* TOP */}
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-16 md:flex-row md:items-start md:justify-between">
-        {/* BRAND */}
+    <footer className="flex flex-col items-center border-t border-red-500 bg-red-200 text-black">
+      {" "}
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-6 py-8 sm:flex-row md:items-start md:justify-between">
         <div className="max-w-sm">
-          <h2 className="text-2xl font-bold text-gray-800">
+          <h2 className="text-2xl font-bold text-black">
+            {" "}
             {estetica?.nombre || "Estética"}
           </h2>
 
-          {estetica?.horarios && (
-            <div className="mt-2 whitespace-pre-line text-sm font-medium text-pink-600">
-              {estetica.horarios}
+          {horarios.length > 0 && (
+            <div className="mt-2 text-sm font-medium text-pink-600">
+              <p>Horarios de atención</p>
+
+              {horarios.map((horario: any, index: number) => (
+                <p key={index}>
+                  {horario.inicio} a {horario.fin}
+                </p>
+              ))}
             </div>
           )}
         </div>
 
-        {/* CONTACTO */}
         <div>
           <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-800">
             Contacto
@@ -35,7 +53,8 @@ function Footer() {
               <a
                 href={estetica.instagram_url}
                 target="_blank"
-                className="hover:text-pink-500 transition"
+                rel="noreferrer"
+                className="transition hover:text-pink-500"
               >
                 Instagram
               </a>
@@ -43,8 +62,6 @@ function Footer() {
           </div>
         </div>
       </div>
-
-      {/* BOTTOM */}
       <div className="border-t border-gray-200">
         <div className="mx-auto max-w-6xl px-6 py-6 text-center text-sm text-gray-400">
           © {new Date().getFullYear()} {estetica?.nombre || "Estética"} · Todos
