@@ -109,13 +109,31 @@ function AdminPage() {
         {/* STATS */}
         <div className="mx-auto flex w-full max-w-5xl flex-col gap-3">
           {/* STATS */}
-          <div className="grid grid-cols-5 gap-2">
+          {/* MÓVIL */}
+          <div className="grid grid-cols-3 gap-2 md:hidden">
             {[
               { label: "Hoy", value: stats.turnos_hoy },
               { label: "Pendiente", value: stats.pendientes },
-              { label: "confirmado", value: stats.confirmados },
+              { label: "Confirmado", value: stats.confirmados },
+            ].map((s, i) => (
+              <div
+                key={i}
+                className="flex flex-col items-center justify-center rounded-xl bg-white py-2 shadow-sm"
+              >
+                <p className="text-xs text-gray-500">{s.label}</p>
+                <h2 className="text-lg font-bold">{s.value}</h2>
+              </div>
+            ))}
+          </div>
+
+          {/* DESKTOP */}
+          <div className="hidden md:grid md:grid-cols-5 gap-2">
+            {[
+              { label: "Hoy", value: stats.turnos_hoy },
+              { label: "Pendiente", value: stats.pendientes },
+              { label: "Confirmado", value: stats.confirmados },
               { label: "Cancelado", value: stats.cancelados },
-              { label: "Fin", value: stats.finalizados },
+              { label: "Finalizado", value: stats.finalizados },
             ].map((s, i) => (
               <div
                 key={i}

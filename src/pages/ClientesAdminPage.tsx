@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../components/layout/AdminLayout";
 import { obtenerClientes } from "../services/clientes";
+import { useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 function ClientesAdminPage() {
   const [clientes, setClientes] = useState<any[]>([]);
+
+  const navigate = useNavigate();
+  const { slug } = useParams();
 
   useEffect(() => {
     cargarClientes();
@@ -123,6 +128,13 @@ function ClientesAdminPage() {
             ))}
           </div>
         </div>
+        <button
+          onClick={() => navigate(`/${slug}/admin`)}
+          className="flex items-center gap-2 rounded-xl  bg-pink-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+        >
+          <ArrowLeft size={18} />
+          Panel
+        </button>
       </div>
     </AdminLayout>
   );

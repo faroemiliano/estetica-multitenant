@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 const api = import.meta.env.VITE_API_URL;
 
 function CrearHorariosEsteticas() {
   const [horarios, setHorarios] = useState([{ inicio: "08:00", fin: "14:00" }]);
+  const navigate = useNavigate();
+  const { slug } = useParams();
 
   useEffect(() => {
     cargarHorarios();
@@ -145,6 +149,13 @@ function CrearHorariosEsteticas() {
               className="rounded-2xl bg-pink-500 px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:scale-[1.03] hover:bg-pink-600"
             >
               Guardar horarios
+            </button>
+            <button
+              onClick={() => navigate(`/${slug}/admin`)}
+              className="flex items-center gap-2 rounded-xl  bg-pink-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+            >
+              <ArrowLeft size={18} />
+              Panel
             </button>
           </div>
         </div>

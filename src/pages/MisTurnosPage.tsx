@@ -190,32 +190,43 @@ function MisTurnosPage() {
                     </span>
                   </div>
 
-                  {/* BUTTON */}
-                  <button
-                    onClick={() => {
-                      const ok = window.confirm("¿Archivar este turno?");
-                      if (ok) handleEliminar(t.id);
-                    }}
-                    className="mt-3 w-full rounded-2xl bg-gray-700 py-3 text-sm font-semibold text-white hover:bg-gray-800"
-                  >
-                    Archivar turno
-                  </button>
-                  {(t.estado === "cancelado" || t.estado === "finalizado") && (
+                  {/* ACTIONS */}
+                  <div className="mt-5 flex w-full flex-col gap-3">
+                    {/* CANCELAR */}
                     <button
                       onClick={() => {
                         const ok = window.confirm(
-                          "¿Querés ocultar este turno? Luego podrás verlo desde el historial.",
+                          "¿Querés cancelar este turno?",
                         );
-
-                        if (ok) {
-                          handleEliminar(t.id);
-                        }
+                        if (ok) handleCancelar(t.id);
                       }}
-                      className="mt-3 w-full rounded-2xl bg-gray-700 py-3 text-sm font-semibold text-white hover:bg-gray-800"
+                      disabled={
+                        t.estado === "cancelado" || t.estado === "finalizado"
+                      }
+                      className={`w-full rounded-2xl py-3 text-sm font-semibold text-white transition
+      ${
+        t.estado === "cancelado" || t.estado === "finalizado"
+          ? "bg-gray-400 cursor-not-allowed"
+          : "bg-red-500 hover:bg-red-600"
+      }
+    `}
+                    >
+                      Cancelar turno
+                    </button>
+
+                    {/* ARCHIVAR (SIEMPRE DISPONIBLE) */}
+                    <button
+                      onClick={() => {
+                        const ok = window.confirm(
+                          "¿Querés archivar este turno?",
+                        );
+                        if (ok) handleEliminar(t.id);
+                      }}
+                      className="w-full rounded-2xl bg-gray-700 py-3 text-sm font-semibold text-white hover:bg-gray-800 transition"
                     >
                       Archivar turno
                     </button>
-                  )}
+                  </div>
                 </div>
               </div>
             ))}

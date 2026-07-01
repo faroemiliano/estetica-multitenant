@@ -16,23 +16,23 @@ function Hero() {
           className="h-full w-full object-cover"
         />
 
-        <div className="absolute inset-0 bg-black/45" />
+        <div />
       </div>
 
       {/* CONTENIDO */}
       <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center text-center text-white">
-        <span className="mb-4 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm backdrop-blur-md">
-          Bienestar • Belleza • Cuidado personal
+        <span className="mt-150 mb-4 rounded-full border border-white/40 bg-[rgba(250,247,243,0.75)] px-8 py-3 text-sm font-medium uppercase tracking-[0.35em] text-[#7A6661] backdrop-blur-2xl shadow-[0_12px_40px_rgba(120,90,80,0.18)] transition-all duration-500 hover:bg-[rgba(250,247,243,0.9)]">
+          ✦ Bienestar • Belleza • Cuidado Personal ✦
         </span>
 
-        <h1 className="max-w-3xl text-5xl font-bold leading-tight md:text-7xl">
+        {/* <h1 className="max-w-3xl text-5xl font-bold leading-tight md:text-7xl">
           Realzá tu belleza natural
         </h1>
 
         <p className="mt-6 max-w-2xl text-lg text-gray-200 md:text-xl">
           Tratamientos estéticos diseñados para ayudarte a sentirte bien, verte
           increíble y disfrutar un momento para vos.
-        </p>
+        </p> */}
       </div>
     </section>
   );

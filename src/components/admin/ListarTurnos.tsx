@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 
 import { obtenerTurnosAdmin, cambiarEstadoTurno } from "../../services/turnos";
 
+import { Check, X, CheckCheck } from "lucide-react";
+
 function ListaTurnos() {
   const [turnos, setTurnos] = useState<any[]>([]);
 
@@ -154,23 +156,26 @@ function ListaTurnos() {
                     <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => handleEstado(turno.id, "confirmado")}
-                        className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-semibold text-white transition hover:scale-[1.03] hover:bg-emerald-600"
+                        title="Confirmar"
+                        className="rounded-full bg-emerald-100 p-3 text-emerald-600 transition hover:bg-emerald-600 hover:text-white"
                       >
-                        Confirmar
+                        <Check size={18} />
                       </button>
 
                       <button
                         onClick={() => handleEstado(turno.id, "cancelado")}
-                        className="rounded-xl bg-red-500 px-4 py-2 text-xs font-semibold text-white transition hover:scale-[1.03] hover:bg-red-600"
+                        title="Cancelar"
+                        className="rounded-full bg-red-100 p-3 text-red-600 transition hover:bg-red-600 hover:text-white"
                       >
-                        Cancelar
+                        <X size={18} />
                       </button>
 
                       <button
                         onClick={() => handleEstado(turno.id, "finalizado")}
-                        className="rounded-xl bg-gray-800 px-4 py-2 text-xs font-semibold text-white transition hover:scale-[1.03] hover:bg-black"
+                        title="Finalizar"
+                        className="rounded-full bg-gray-100 p-3 text-gray-700 transition hover:bg-gray-800 hover:text-white"
                       >
-                        Finalizar
+                        <CheckCheck size={18} />
                       </button>
                     </div>
                   </div>
@@ -225,26 +230,29 @@ function ListaTurnos() {
                     </div>
 
                     {/* BUTTONS */}
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    <div className="flex justify-center gap-4">
                       <button
                         onClick={() => handleEstado(turno.id, "confirmado")}
-                        className="rounded-2xl bg-emerald-500 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600"
+                        title="Confirmar"
+                        className="rounded-full bg-emerald-100 p-4 text-emerald-600 transition hover:bg-emerald-600 hover:text-white"
                       >
-                        Confirmar
+                        <Check size={22} />
                       </button>
 
                       <button
                         onClick={() => handleEstado(turno.id, "cancelado")}
-                        className="rounded-2xl bg-red-500 py-3 text-sm font-semibold text-white transition hover:bg-red-600"
+                        title="Cancelar"
+                        className="rounded-full bg-red-100 p-4 text-red-600 transition hover:bg-red-600 hover:text-white"
                       >
-                        Cancelar
+                        <X size={22} />
                       </button>
 
                       <button
                         onClick={() => handleEstado(turno.id, "finalizado")}
-                        className="rounded-2xl bg-gray-800 py-3 text-sm font-semibold text-white transition hover:bg-black"
+                        title="Finalizar"
+                        className="rounded-full bg-gray-100 p-4 text-gray-700 transition hover:bg-gray-800 hover:text-white"
                       >
-                        Finalizar
+                        <CheckCheck size={22} />
                       </button>
                     </div>
                   </div>

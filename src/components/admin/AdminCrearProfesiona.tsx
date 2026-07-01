@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 function AdminCrearProfesional() {
   const api = import.meta.env.VITE_API_URL;
@@ -160,12 +161,6 @@ function AdminCrearProfesional() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-fuchsia-100 p-4 md:p-8">
       <div className="mx-auto max-w-5xl">
-        <button
-          onClick={() => navigate(`/${slug}`)}
-          className="mb-6 inline-flex items-center gap-2 rounded-2xl border border-pink-200 bg-white px-5 py-3 text-sm font-bold text-gray-700 shadow-sm transition hover:bg-pink-50"
-        >
-          🏠 Ver Página Pública
-        </button>
         <div className="mb-10 text-center">
           <span className="mb-4 inline-block rounded-full bg-pink-100 px-5 py-2 text-xs font-bold uppercase tracking-widest text-pink-700">
             Equipo
@@ -204,7 +199,7 @@ function AdminCrearProfesional() {
               key={profesional.id}
               className="rounded-[28px] border border-pink-100 bg-white p-6 shadow-sm transition hover:shadow-xl"
             >
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 {profesionalEditando === profesional.id ? (
                   <input
                     value={nombreEditado}
@@ -221,9 +216,9 @@ function AdminCrearProfesional() {
                   </div>
                 )}
 
-                <div className="flex gap-2">
+                <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
                   <button
-                    className="rounded-xl border border-pink-200 px-4 py-2 font-semibold text-pink-600 hover:bg-pink-50"
+                    className="w-full rounded-xl border border-pink-200 px-4 py-3 font-semibold text-pink-600 hover:bg-pink-50 sm:w-auto"
                     onClick={async () => {
                       if (profesionalEditando === profesional.id) {
                         setProfesionalEditando(null);
@@ -242,7 +237,7 @@ function AdminCrearProfesional() {
 
                   <button
                     onClick={() => eliminarProfesional(profesional.id)}
-                    className="rounded-xl bg-red-500 px-4 py-2 font-semibold text-white hover:bg-red-600"
+                    className="w-full rounded-xl bg-red-500 px-4 py-3 font-semibold text-white hover:bg-red-600 sm:w-auto"
                   >
                     Eliminar
                   </button>
@@ -256,16 +251,16 @@ function AdminCrearProfesional() {
                       Nombre del profesional
                     </label>
 
-                    <div className="flex gap-2">
+                    <div className="flex flex-col gap-3 sm:flex-row">
+                      {" "}
                       <input
                         value={nombreEditado}
                         onChange={(e) => setNombreEditado(e.target.value)}
-                        className="flex-1 rounded-lg border p-2"
+                        className="w-full flex-1 rounded-lg border p-3"
                       />
-
                       <button
                         onClick={() => guardarNombre(profesional.id)}
-                        className="rounded-lg bg-blue-500 px-4 py-2 text-white"
+                        className="w-full rounded-lg bg-blue-500 px-4 py-3 text-white sm:w-auto"
                       >
                         Guardar nombre
                       </button>
@@ -279,15 +274,16 @@ function AdminCrearProfesional() {
                     return (
                       <div
                         key={index}
-                        className="mb-3 flex flex-wrap items-center gap-3 rounded-2xl bg-white p-3 shadow-sm"
+                        className="mb-4 flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-sm md:flex-row md:items-center"
                       >
-                        <span className="w-32 font-semibold text-gray-700">
+                        <span className="font-semibold text-gray-700 md:w-32">
+                          {" "}
                           {dia}
                         </span>
 
                         <input
                           type="checkbox"
-                          className="h-5 w-5 accent-pink-500"
+                          className="h-5 w-5 shrink-0 accent-pink-500"
                           checked={!!actual}
                           onChange={(e) => {
                             if (e.target.checked) {
@@ -311,10 +307,10 @@ function AdminCrearProfesional() {
                         />
 
                         {actual && (
-                          <>
+                          <div className="flex w-full flex-col gap-3 sm:flex-row">
                             <input
                               type="time"
-                              className="rounded-xl border border-pink-200 px-3 py-2"
+                              className="w-full rounded-xl border border-pink-200 px-3 py-2 sm:w-auto"
                               value={actual.hora_inicio}
                               onChange={(e) => {
                                 setDisponibilidad(
@@ -332,7 +328,7 @@ function AdminCrearProfesional() {
 
                             <input
                               type="time"
-                              className="rounded-xl border border-pink-200 px-3 py-2"
+                              className="w-full rounded-xl border border-pink-200 px-3 py-2 sm:w-auto"
                               value={actual.hora_fin}
                               onChange={(e) => {
                                 setDisponibilidad(
@@ -347,7 +343,7 @@ function AdminCrearProfesional() {
                                 );
                               }}
                             />
-                          </>
+                          </div>
                         )}
                       </div>
                     );
@@ -355,7 +351,7 @@ function AdminCrearProfesional() {
 
                   <button
                     onClick={() => guardarDisponibilidad(profesional.id)}
-                    className="mt-6 w-full rounded-2xl bg-gradient-to-r from-pink-500 to-fuchsia-500 py-4 font-bold text-white shadow-lg"
+                    className="mt-6 w-full rounded-2xl bg-gradient-to-r from-pink-500 to-fuchsia-500 py-4 font-bold text-white shadow-lg transition hover:scale-[1.01]"
                   >
                     Guardar disponibilidad
                   </button>
@@ -364,6 +360,13 @@ function AdminCrearProfesional() {
             </div>
           ))}
         </div>
+        <button
+          onClick={() => navigate(`/${slug}/admin`)}
+          className="flex items-center mt-2 gap-2 rounded-xl  bg-pink-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+        >
+          <ArrowLeft size={18} />
+          Panel
+        </button>
       </div>
     </div>
   );

@@ -46,29 +46,54 @@ function CompletarPerfilPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#f7f4f2] px-4">
-      <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-xl">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-white flex items-center justify-center px-6 py-10">
+      {" "}
+      <div className="w-full max-w-lg rounded-[32px] bg-white/90 backdrop-blur-md border border-rose-100 shadow-2xl p-10">
+        {" "}
         {/* HEADER */}
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-800">Completar perfil</h1>
+        <div className="mb-10 text-center">
+          <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-rose-100 text-4xl">
+            🌸
+          </div>
 
-          <p className="mt-2 text-sm text-gray-500">
-            Necesitamos algunos datos antes de reservar
+          <h1 className="text-3xl font-semibold tracking-tight text-rose-900">
+            Completar perfil
+          </h1>
+
+          <p className="mt-3 text-sm leading-relaxed text-rose-500">
+            Solo necesitamos algunos datos para brindarte una experiencia
+            personalizada.
           </p>
         </div>
-
         {/* FORM */}
         <div className="flex flex-col gap-5">
           {/* NOMBRE */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label className="mb-2 block text-sm font-medium text-rose-700">
               Nombre completo
             </label>
 
             <input
               type="text"
               placeholder="Tu nombre"
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 outline-none transition focus:border-black"
+              className="
+w-full
+rounded-2xl
+border
+border-rose-200
+bg-rose-50/40
+px-5
+py-3.5
+text-gray-700
+placeholder:text-rose-300
+transition
+duration-200
+outline-none
+focus:border-pink-400
+focus:bg-white
+focus:ring-4
+focus:ring-pink-100
+"
               onChange={(e) =>
                 setForm({
                   ...form,
@@ -80,13 +105,30 @@ function CompletarPerfilPage() {
 
           {/* FECHA */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label className="mb-2 block text-sm font-medium text-rose-700">
               Fecha de nacimiento
             </label>
 
             <input
               type="date"
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 outline-none transition focus:border-black"
+              className="
+w-full
+rounded-2xl
+border
+border-rose-200
+bg-rose-50/40
+px-5
+py-3.5
+text-gray-700
+placeholder:text-rose-300
+transition
+duration-200
+outline-none
+focus:border-pink-400
+focus:bg-white
+focus:ring-4
+focus:ring-pink-100
+"
               onChange={(e) =>
                 setForm({
                   ...form,
@@ -98,7 +140,7 @@ function CompletarPerfilPage() {
 
           {/* TELEFONO */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label className="mb-2 block text-sm font-medium text-rose-700">
               Teléfono
             </label>
 
@@ -106,7 +148,24 @@ function CompletarPerfilPage() {
               type="tel"
               placeholder="+54 11 12345678"
               value={form.telefono}
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 outline-none transition focus:border-black"
+              className="
+w-full
+rounded-2xl
+border
+border-rose-200
+bg-rose-50/40
+px-5
+py-3.5
+text-gray-700
+placeholder:text-rose-300
+transition
+duration-200
+outline-none
+focus:border-pink-400
+focus:bg-white
+focus:ring-4
+focus:ring-pink-100
+"
               onChange={(e) => {
                 let value = e.target.value;
 
@@ -125,7 +184,7 @@ function CompletarPerfilPage() {
               }}
             />
 
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-2 text-xs text-rose-400">
               Ingresá el código de país. Ej: +54 11..., +34..., +1...
             </p>
           </div>
@@ -133,7 +192,23 @@ function CompletarPerfilPage() {
           {/* BUTTON */}
           <button
             onClick={guardarPerfil}
-            className="mt-2 rounded-2xl bg-black py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+            className="
+    mt-4
+    w-full
+    rounded-2xl
+    bg-gradient-to-r
+    from-pink-500
+    to-rose-500
+    py-3.5
+    font-semibold
+    text-white
+    shadow-lg
+    transition-all
+    duration-300
+    hover:scale-[1.02]
+    hover:shadow-xl
+    active:scale-[0.98]
+  "
           >
             Guardar perfil
           </button>

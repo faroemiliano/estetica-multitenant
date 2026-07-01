@@ -1,69 +1,48 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState } from "react";
 
 type User = {
   id: number;
-
   role: string;
-
   email: string;
 };
 
 type AuthContextType = {
-  token: string;
-
+  token: string | null;
   user: User | null;
-
   login: (token: string, user: User) => void;
-
   logout: () => void;
 };
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export function AuthProvider({ children }: any) {
-  const [token, setToken] = useState("");
+  const [token, setToken] = useState<string | null>(() =>
+    localStorage.getItem("token"),
+  );
 
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const saved = localStorage.getItem("user");
+    return saved ? JSON.parse(saved) : null;
+  });
 
-  useEffect(() => {
-    const savedToken = localStorage.getItem("token");
-
-    const savedUser = localStorage.getItem("user");
-
-    if (savedToken && savedUser) {
-      setToken(savedToken);
-
-      setUser(JSON.parse(savedUser));
-    }
-  }, []);
+  const [loading, setLoading] = useState(true);
 
   const login = (jwt: string, userData: User) => {
     localStorage.setItem("token", jwt);
-
     localStorage.setItem("user", JSON.stringify(userData));
 
     setToken(jwt);
-
     setUser(userData);
   };
 
   const logout = () => {
     localStorage.clear();
-
-    setToken("");
-
+    setToken(null);
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        token,
-        user,
-        login,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={{ token, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

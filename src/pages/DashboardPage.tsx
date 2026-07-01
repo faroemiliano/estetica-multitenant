@@ -12,7 +12,7 @@ function DashboardPage() {
   const [fecha, setFecha] = useState<Date | null>(null);
   const [horarios, setHorarios] = useState<string[]>([]);
   const [horaSeleccionada, setHoraSeleccionada] = useState("");
-  const [modalAbierto, setModalAbierto] = useState(false);
+
   const [modalCategoria, setModalCategoria] = useState(false);
   const [modalReserva, setModalReserva] = useState(false);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<
@@ -78,7 +78,7 @@ function DashboardPage() {
 
       alert("Turno reservado correctamente");
 
-      setModalAbierto(false);
+      setModalReserva(false);
 
       setServicioSeleccionado(null);
 
@@ -310,6 +310,9 @@ function DashboardPage() {
                       }}
                       className="cursor-pointer rounded-3xl border border-pink-100 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
                     >
+                      <span className="inline-block rounded-full bg-pink-100 px-3 py-1 text-xs font-bold text-pink-600">
+                        {servicio.categoria || "Otros"}
+                      </span>
                       <div className="flex items-start justify-between">
                         <h3 className="font-bold text-gray-900">
                           {servicio.nombre}

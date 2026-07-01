@@ -82,7 +82,7 @@ function ConfigEsteticaPage() {
         </div>
 
         {/* CARD */}
-        <div className="rounded-[36px] border border-pink-100 bg-white p-8 shadow-[0_20px_60px_rgba(236,72,153,0.10)]">
+        <div className="rounded-[36px]  border border-pink-100 bg-white p-8 shadow-[0_20px_60px_rgba(236,72,153,0.10)]">
           <div className="grid gap-5">
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-700">
