@@ -27,11 +27,13 @@ function Footer() {
               </p>
 
               <div className="mt-3 flex flex-col gap-1 text-sm text-gray-600">
-                {horarios.map((horario: any, index: number) => (
-                  <p key={index}>
-                    {horario.inicio} a {horario.fin}
-                  </p>
-                ))}
+                {horarios.map(
+                  (horario: { inicio: string; fin: string }, index: number) => (
+                    <p key={index}>
+                      {horario.inicio} a {horario.fin}
+                    </p>
+                  ),
+                )}
               </div>
             </div>
           )}

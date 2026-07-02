@@ -1,6 +1,6 @@
 import { FaWhatsapp } from "react-icons/fa";
 
-function WhatsappButton({ whatsapp }) {
+function WhatsappButton({ whatsapp }: { whatsapp: string }) {
   if (!whatsapp) return null;
 
   return (
