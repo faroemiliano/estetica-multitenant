@@ -27,6 +27,7 @@ function CompletarPerfilPage() {
     }
 
     try {
+      if (!token) return;
       await completarPerfil(token, form);
 
       const user = JSON.parse(localStorage.getItem("user") || "null");
@@ -40,8 +41,8 @@ function CompletarPerfilPage() {
       );
 
       navigate(`/${slug}/dashboard`);
-    } catch (error: any) {
-      console.log(JSON.stringify(error.response.data, null, 2));
+    } catch (error: unknown) {
+      console.log(error);
     }
   };
 

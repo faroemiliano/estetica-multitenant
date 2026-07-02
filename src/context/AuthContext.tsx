@@ -25,8 +25,6 @@ export function AuthProvider({ children }: any) {
     return saved ? JSON.parse(saved) : null;
   });
 
-  const [loading, setLoading] = useState(true);
-
   const login = (jwt: string, userData: User) => {
     localStorage.setItem("token", jwt);
     localStorage.setItem("user", JSON.stringify(userData));

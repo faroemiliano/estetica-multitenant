@@ -43,7 +43,7 @@ function Footer() {
         <div className="flex flex-col items-center justify-center text-center">
           <div className="flex h-38 w-38 items-center justify-center rounded-full bg-white shadow-xl ring-4 ring-pink-100">
             <img
-              src={estetica?.logo_url}
+              src={estetica?.logo_url ?? ""}
               alt="Logo"
               className="h-100 w-80 object-contain"
             />

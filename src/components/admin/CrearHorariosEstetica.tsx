@@ -5,8 +5,13 @@ import { ArrowLeft } from "lucide-react";
 
 const api = import.meta.env.VITE_API_URL;
 
+type Horario = {
+  inicio: string;
+  fin: string;
+};
+
 function CrearHorariosEsteticas() {
-  const [horarios, setHorarios] = useState<{ inicio: string; fin: string }[]>([
+  const [horarios, setHorarios] = useState<Horario[]>([
     { inicio: "08:00", fin: "14:00" },
   ]);
   const navigate = useNavigate();
@@ -36,13 +41,17 @@ function CrearHorariosEsteticas() {
     setHorarios([...horarios, { inicio: "", fin: "" }]);
   };
 
-  const actualizarHorario = (index: number, campo: string, valor: string) => {
+  const actualizarHorario = (
+    index: number,
+    campo: keyof Horario,
+    valor: string,
+  ) => {
     const copia = [...horarios];
     copia[index][campo] = valor;
     setHorarios(copia);
   };
 
-  const eliminarHorario = (index) => {
+  const eliminarHorario = (index: number) => {
     setHorarios(horarios.filter((_, i) => i !== index));
   };
 
