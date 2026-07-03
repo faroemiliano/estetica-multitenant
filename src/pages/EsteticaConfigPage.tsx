@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { actualizarEstetica, obtenerEstetica } from "../services/esteticas";
-import { useEstetica } from "../context/EsteticaContext";
+
 import { Navigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 
@@ -13,8 +13,6 @@ function ConfigEsteticaPage() {
     return <Navigate to={`/${slug}`} replace />;
   }
 
-  const { refresh } = useEstetica();
-
   const [form, setForm] = useState({
     logo_url: "",
     hero_image: "",
@@ -24,7 +22,9 @@ function ConfigEsteticaPage() {
     horarios: "",
   });
 
-  const handleChange = (e: any) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setForm({
       ...form,
       [e.target.name]: e.target.value,
@@ -39,6 +39,8 @@ function ConfigEsteticaPage() {
     console.log("SLUG:", slug);
     console.log("PAYLOAD:", payload);
 
+    if (!slug) return;
+
     const response = await actualizarEstetica(slug, payload);
 
     console.log("RESPUESTA:", response);
@@ -48,6 +50,8 @@ function ConfigEsteticaPage() {
 
   useEffect(() => {
     const load = async () => {
+      if (!slug) return;
+
       const data = await obtenerEstetica(slug);
 
       setForm({

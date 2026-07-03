@@ -3,14 +3,19 @@ import { useEstetica } from "../context/EsteticaContext";
 function Footer() {
   const { estetica } = useEstetica();
 
-  let horarios = [];
+  type Horario = {
+    inicio: string;
+    fin: string;
+  };
+
+  let horarios: Horario[] = [];
 
   try {
-    horarios = Array.isArray(estetica?.horarios)
-      ? estetica.horarios
-      : estetica?.horarios
-        ? JSON.parse(estetica.horarios)
-        : [];
+    if (Array.isArray(estetica?.horarios)) {
+      horarios = estetica.horarios;
+    } else if (estetica?.horarios) {
+      horarios = JSON.parse(estetica.horarios) as Horario[];
+    }
   } catch {
     horarios = [];
   }
@@ -27,13 +32,11 @@ function Footer() {
               </p>
 
               <div className="mt-3 flex flex-col gap-1 text-sm text-gray-600">
-                {horarios.map(
-                  (horario: { inicio: string; fin: string }, index: number) => (
-                    <p key={index}>
-                      {horario.inicio} a {horario.fin}
-                    </p>
-                  ),
-                )}
+                {horarios.map((horario, index) => (
+                  <p key={index}>
+                    {horario.inicio} a {horario.fin}
+                  </p>
+                ))}
               </div>
             </div>
           )}
@@ -43,7 +46,7 @@ function Footer() {
         <div className="flex flex-col items-center justify-center text-center">
           <div className="flex h-38 w-38 items-center justify-center rounded-full bg-white shadow-xl ring-4 ring-pink-100">
             <img
-              src={estetica?.logo_url ?? ""}
+              src={estetica?.logo_url || "/logo-placeholder.png"}
               alt="Logo"
               className="h-100 w-80 object-contain"
             />

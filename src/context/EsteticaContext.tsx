@@ -49,6 +49,8 @@ export function EsteticaProvider({ children }: any) {
   const { slug } = useParams();
   console.log("ESTETICA CONTEXT SLUG:", slug);
   const load = async () => {
+    if (!slug) return;
+
     setLoading(true);
 
     try {
@@ -60,7 +62,6 @@ export function EsteticaProvider({ children }: any) {
   };
 
   useEffect(() => {
-    if (!slug) return;
     load();
   }, [slug]);
 
