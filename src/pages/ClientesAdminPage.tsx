@@ -23,6 +23,11 @@ function ClientesAdminPage() {
     setClientes(data);
   };
 
+  const formatearFecha = (fecha: string) => {
+    const [anio, mes, dia] = fecha.split("-");
+    return `${dia}/${mes}/${anio}`;
+  };
+
   return (
     <AdminLayout>
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-6">
@@ -73,7 +78,7 @@ function ClientesAdminPage() {
                   {/* FECHA */}
                   <td className="px-6 py-4 text-sm text-gray-700">
                     {cliente.fecha_nacimiento
-                      ? cliente.fecha_nacimiento.split("-").reverse().join("/")
+                      ? formatearFecha(cliente.fecha_nacimiento)
                       : "-"}
                   </td>
 
@@ -115,9 +120,7 @@ function ClientesAdminPage() {
                   <div>
                     📅{" "}
                     {cliente.fecha_nacimiento
-                      ? new Date(cliente.fecha_nacimiento).toLocaleDateString(
-                          "es-AR",
-                        )
+                      ? formatearFecha(cliente.fecha_nacimiento)
                       : "-"}
                   </div>
 
