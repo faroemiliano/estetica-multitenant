@@ -19,6 +19,7 @@ function ClientesAdminPage() {
     if (!token) return;
 
     const data = await obtenerClientes(token);
+    console.log(data);
     setClientes(data);
   };
 
@@ -72,9 +73,7 @@ function ClientesAdminPage() {
                   {/* FECHA */}
                   <td className="px-6 py-4 text-sm text-gray-700">
                     {cliente.fecha_nacimiento
-                      ? new Date(cliente.fecha_nacimiento).toLocaleDateString(
-                          "es-AR",
-                        )
+                      ? cliente.fecha_nacimiento.split("-").reverse().join("/")
                       : "-"}
                   </td>
 
