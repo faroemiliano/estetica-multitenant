@@ -1,5 +1,4 @@
 import { useEstetica } from "../context/EsteticaContext";
-import { MessageCircle, Camera } from "lucide-react";
 
 function Footer() {
   const { estetica } = useEstetica();
