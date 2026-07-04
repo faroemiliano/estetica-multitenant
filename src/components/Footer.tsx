@@ -1,4 +1,5 @@
 import { useEstetica } from "../context/EsteticaContext";
+import { MessageCircle, Camera } from "lucide-react";
 
 function Footer() {
   const { estetica } = useEstetica();
@@ -64,12 +65,18 @@ function Footer() {
           </h3>
 
           <div className="flex flex-col gap-3 text-sm text-gray-600">
-            <p>{estetica?.direccion || "Dirección no definida"}</p>
+            <p>📍 {estetica?.direccion || "Dirección no definida"}</p>
 
             {estetica?.whatsapp && (
-              <p className="font-medium text-gray-700">
-                WhatsApp: {estetica.whatsapp}
-              </p>
+              <a
+                href={`https://wa.me/${estetica.whatsapp.replace(/\D/g, "")}`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-2 font-medium transition hover:text-green-600"
+              >
+                <span className="text-lg">💬</span>
+                {estetica.whatsapp}
+              </a>
             )}
 
             {estetica?.instagram_url && (
@@ -77,8 +84,9 @@ function Footer() {
                 href={estetica.instagram_url}
                 target="_blank"
                 rel="noreferrer"
-                className="font-medium text-pink-500 transition hover:text-pink-600"
+                className="flex items-center gap-2 font-medium text-pink-500 transition hover:text-pink-600"
               >
+                <span className="text-lg">📸</span>
                 Instagram
               </a>
             )}
