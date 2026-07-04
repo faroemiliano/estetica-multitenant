@@ -177,8 +177,17 @@ function AdminPage() {
 
                 <a
                   className="text-sm font-semibold text-pink-600"
-                  href={`https://wa.me/${c.telefono}?text=Feliz cumpleaños ${c.nombre_completo}! 🎂`}
+                  href={`https://wa.me/${c.telefono}?text=${encodeURIComponent(
+                    `¡Feliz cumpleaños, ${c.nombre_completo}! 🎉🎂
+
+Todo el equipo de Aura Estética te desea un día lleno de alegría, bienestar y momentos especiales.
+
+Gracias por confiar en nosotros. Esperamos verte pronto para seguir acompañándote en tu cuidado y belleza. 💖
+
+¡Que tengas un excelente cumpleaños! 🌸`,
+                  )}`}
                   target="_blank"
+                  rel="noreferrer"
                 >
                   WhatsApp
                 </a>
