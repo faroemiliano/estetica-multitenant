@@ -62,6 +62,7 @@ export function EsteticaProvider({ children }: any) {
   };
 
   useEffect(() => {
+    if (!slug) return;
     load();
   }, [slug]);
 
