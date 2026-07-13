@@ -13,6 +13,7 @@ function CrearServicioForm({ recargarServicios }: any) {
     duracion: "",
     precio: "",
     profesional_id: "",
+    requiere_whatsapp: false,
   });
 
   const crearServicio = async () => {
@@ -45,6 +46,7 @@ function CrearServicioForm({ recargarServicios }: any) {
         duracion: "",
         precio: "",
         profesional_id: "",
+        requiere_whatsapp: false,
       });
     } catch (error) {
       console.log(error);
@@ -213,6 +215,33 @@ function CrearServicioForm({ recargarServicios }: any) {
               }
             />
           </div>
+        </div>
+
+        <div className="rounded-2xl border border-pink-100 bg-pink-50 p-5">
+          <label className="flex cursor-pointer items-center gap-4">
+            <input
+              type="checkbox"
+              checked={form.requiere_whatsapp}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  requiere_whatsapp: e.target.checked,
+                })
+              }
+              className="h-5 w-5 accent-pink-500"
+            />
+
+            <div>
+              <p className="font-semibold text-gray-800">
+                Reserva únicamente por WhatsApp
+              </p>
+
+              <p className="text-sm text-gray-500">
+                El cliente verá un botón para comunicarse por WhatsApp en lugar
+                del calendario de reservas.
+              </p>
+            </div>
+          </label>
         </div>
 
         {/* BUTTON */}

@@ -295,7 +295,7 @@ function DashboardPage() {
                       key={servicio.id}
                       onClick={() => {
                         setServicioSeleccionado(servicio);
-
+                        console.log("SERVICIO SELECCIONADO:", servicio);
                         setProfesionalSeleccionado(
                           servicio.profesional?.id || null,
                         );
@@ -353,7 +353,7 @@ function DashboardPage() {
               {/* CONTENT */}
               {/* CONTENT */}
               <div className="p-8 space-y-8 overflow-y-auto flex-1">
-                {servicioSeleccionado.categoria === "Depilación Láser" ? (
+                {servicioSeleccionado.requiere_whatsapp ? (
                   <>
                     <div className="rounded-3xl border border-yellow-200 bg-yellow-50 p-6">
                       <div className="flex items-center gap-3">
@@ -373,9 +373,11 @@ function DashboardPage() {
                       </div>
 
                       <p className="mt-5 leading-7 text-gray-700">
-                        Los turnos para <strong>Depilación Láser</strong> se
-                        coordinan exclusivamente por WhatsApp para realizar una
-                        evaluación y asignar el tratamiento adecuado.
+                        El servicio{" "}
+                        <strong>{servicioSeleccionado.nombre}</strong> requiere
+                        una coordinación previa con nuestro equipo. Comunicate
+                        por WhatsApp para recibir asesoramiento y reservar tu
+                        turno.
                       </p>
 
                       <a

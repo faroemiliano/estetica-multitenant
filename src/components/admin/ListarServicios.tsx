@@ -16,6 +16,7 @@ function ListaServicios({
     duracion: "",
     precio: "",
     profesionalId: "",
+    requiereWhatsapp: false,
   });
 
   const handleEliminar = async (id: number) => {
@@ -40,6 +41,7 @@ function ListaServicios({
       profesionalId: servicio.profesional_id
         ? String(servicio.profesional_id)
         : "",
+      requiereWhatsapp: servicio.requiere_whatsapp,
     });
   };
 
@@ -58,6 +60,7 @@ function ListaServicios({
       duracion: Number(formEditar.duracion),
       precio: Number(formEditar.precio),
       profesional_id: Number(formEditar.profesionalId),
+      requiere_whatsapp: formEditar.requiereWhatsapp,
     });
 
     setEditandoId(null);
@@ -162,6 +165,33 @@ function ListaServicios({
                     </option>
                   ))}
                 </select>
+
+                <div className="md:col-span-2 rounded-xl border border-pink-200 bg-pink-50 p-4">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formEditar.requiereWhatsapp}
+                      onChange={(e) =>
+                        setFormEditar({
+                          ...formEditar,
+                          requiereWhatsapp: e.target.checked,
+                        })
+                      }
+                      className="h-5 w-5 accent-pink-500"
+                    />
+
+                    <div>
+                      <p className="font-semibold text-gray-800">
+                        Reserva únicamente por WhatsApp
+                      </p>
+
+                      <p className="text-sm text-gray-500">
+                        El cliente será redirigido a WhatsApp en lugar de poder
+                        reservar desde el calendario.
+                      </p>
+                    </div>
+                  </label>
+                </div>
 
                 <div className="flex gap-3">
                   <button
