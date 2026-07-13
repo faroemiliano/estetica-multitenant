@@ -351,110 +351,155 @@ function DashboardPage() {
                 </p>
               </div>
               {/* CONTENT */}
+              {/* CONTENT */}
               <div className="p-8 space-y-8 overflow-y-auto flex-1">
-                {/* SERVICIO */}
-                <div className="rounded-3xl bg-pink-50/60 p-5">
-                  <p className="text-xs font-bold uppercase tracking-widest text-pink-500">
-                    Servicio seleccionado
-                  </p>
-
-                  <h3 className="mt-2 text-2xl font-black text-gray-900">
-                    {servicioSeleccionado.nombre}
-                  </h3>
-
-                  <p className="mt-1 text-sm text-gray-500">
-                    {servicioSeleccionado.descripcion}
-                  </p>
-
-                  <span className="mt-3 inline-block rounded-full bg-pink-100 px-3 py-1 text-sm font-bold text-pink-600">
-                    ${servicioSeleccionado.precio}
-                  </span>
-                </div>
-
-                {/* GRID */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* FECHA */}
-                  <div>
-                    <p className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-500">
-                      Seleccionar fecha
-                    </p>
-
-                    <div className="rounded-3xl border border-pink-100 p-3 shadow-sm">
-                      <DatePicker
-                        selected={fecha}
-                        minDate={new Date()}
-                        onChange={(date: Date | null) => setFecha(date)}
-                        inline
-                      />
-                    </div>
-                  </div>
-
-                  {/* HORARIOS */}
-                  <div>
-                    <p className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-500">
-                      Horarios disponibles
-                    </p>
-
-                    <div className="max-h-[320px] overflow-y-auto rounded-3xl border border-pink-100 p-4">
-                      {horarios.length === 0 ? (
-                        <p className="text-sm text-gray-400 text-center py-10">
-                          Seleccioná una fecha para ver horarios
-                        </p>
-                      ) : (
-                        <div className="grid grid-cols-2 gap-3">
-                          {horarios.map((h) => (
-                            <button
-                              key={h}
-                              onClick={() => setHoraSeleccionada(h)}
-                              className={`rounded-2xl px-4 py-3 text-sm font-bold transition ${
-                                horaSeleccionada === h
-                                  ? "bg-gradient-to-r from-pink-500 to-fuchsia-500 text-white shadow-lg"
-                                  : "bg-pink-50 text-gray-700 hover:bg-pink-100"
-                              }`}
-                            >
-                              {h}
-                            </button>
-                          ))}
+                {servicioSeleccionado.categoria === "Depilación Láser" ? (
+                  <>
+                    <div className="rounded-3xl border border-yellow-200 bg-yellow-50 p-6">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100 text-2xl">
+                          ⚠️
                         </div>
-                      )}
+
+                        <div>
+                          <h3 className="text-xl font-black text-gray-800">
+                            Reserva especial
+                          </h3>
+
+                          <p className="text-sm text-gray-600">
+                            Este servicio requiere una evaluación previa.
+                          </p>
+                        </div>
+                      </div>
+
+                      <p className="mt-5 leading-7 text-gray-700">
+                        Los turnos para <strong>Depilación Láser</strong> se
+                        coordinan exclusivamente por WhatsApp para realizar una
+                        evaluación y asignar el tratamiento adecuado.
+                      </p>
+
+                      <a
+                        href="https://wa.me/541162582878"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-6 flex w-full items-center justify-center rounded-2xl bg-green-500 px-5 py-4 font-bold text-white transition hover:bg-green-600"
+                      >
+                        💬 Hablar por WhatsApp
+                      </a>
                     </div>
-                  </div>
-                </div>
 
-                {/* RESUMEN */}
-                <div className="rounded-3xl bg-gray-50 p-5">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Fecha</span>
-                    <span className="font-semibold">
-                      {fecha ? fecha.toISOString().split("T")[0] : "-"}
-                    </span>
-                  </div>
+                    <button
+                      onClick={() => setModalReserva(false)}
+                      className="w-full rounded-2xl border border-gray-200 py-3 font-semibold text-gray-600 transition hover:bg-gray-50"
+                    >
+                      Volver
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {/* SERVICIO */}
+                    <div className="rounded-3xl bg-pink-50/60 p-5">
+                      <p className="text-xs font-bold uppercase tracking-widest text-pink-500">
+                        Servicio seleccionado
+                      </p>
 
-                  <div className="flex justify-between text-sm mt-2">
-                    <span className="text-gray-500">Horario</span>
-                    <span className="font-semibold">
-                      {horaSeleccionada || "-"}
-                    </span>
-                  </div>
-                </div>
+                      <h3 className="mt-2 text-2xl font-black text-gray-900">
+                        {servicioSeleccionado.nombre}
+                      </h3>
 
-                {/* BOTONES */}
-                <div className="flex gap-4 pt-2">
-                  <button
-                    onClick={() => setModalReserva(false)}
-                    className="flex-1 rounded-2xl border border-gray-200 py-3 font-semibold text-gray-600 hover:bg-gray-50 transition"
-                  >
-                    Cancelar
-                  </button>
+                      <p className="mt-1 text-sm text-gray-500">
+                        {servicioSeleccionado.descripcion}
+                      </p>
 
-                  <button
-                    disabled={!fecha || !horaSeleccionada}
-                    onClick={confirmarReserva}
-                    className="flex-1 rounded-2xl bg-gradient-to-r from-pink-500 to-fuchsia-500 py-3 font-bold text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_15px_40px_rgba(236,72,153,0.35)] transition"
-                  >
-                    Confirmar turno
-                  </button>
-                </div>
+                      <span className="mt-3 inline-block rounded-full bg-pink-100 px-3 py-1 text-sm font-bold text-pink-600">
+                        ${servicioSeleccionado.precio}
+                      </span>
+                    </div>
+
+                    {/* GRID */}
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                      <div>
+                        <p className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-500">
+                          Seleccionar fecha
+                        </p>
+
+                        <div className="rounded-3xl border border-pink-100 p-3 shadow-sm">
+                          <DatePicker
+                            selected={fecha}
+                            minDate={new Date()}
+                            onChange={(date: Date | null) => setFecha(date)}
+                            inline
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-500">
+                          Horarios disponibles
+                        </p>
+
+                        <div className="max-h-[320px] overflow-y-auto rounded-3xl border border-pink-100 p-4">
+                          {horarios.length === 0 ? (
+                            <p className="py-10 text-center text-sm text-gray-400">
+                              Seleccioná una fecha para ver horarios
+                            </p>
+                          ) : (
+                            <div className="grid grid-cols-2 gap-3">
+                              {horarios.map((h) => (
+                                <button
+                                  key={h}
+                                  onClick={() => setHoraSeleccionada(h)}
+                                  className={`rounded-2xl px-4 py-3 text-sm font-bold transition ${
+                                    horaSeleccionada === h
+                                      ? "bg-gradient-to-r from-pink-500 to-fuchsia-500 text-white shadow-lg"
+                                      : "bg-pink-50 text-gray-700 hover:bg-pink-100"
+                                  }`}
+                                >
+                                  {h}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* RESUMEN */}
+                    <div className="rounded-3xl bg-gray-50 p-5">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Fecha</span>
+                        <span className="font-semibold">
+                          {fecha ? fecha.toISOString().split("T")[0] : "-"}
+                        </span>
+                      </div>
+
+                      <div className="mt-2 flex justify-between text-sm">
+                        <span className="text-gray-500">Horario</span>
+                        <span className="font-semibold">
+                          {horaSeleccionada || "-"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* BOTONES */}
+                    <div className="flex gap-4 pt-2">
+                      <button
+                        onClick={() => setModalReserva(false)}
+                        className="flex-1 rounded-2xl border border-gray-200 py-3 font-semibold text-gray-600 transition hover:bg-gray-50"
+                      >
+                        Cancelar
+                      </button>
+
+                      <button
+                        disabled={!fecha || !horaSeleccionada}
+                        onClick={confirmarReserva}
+                        className="flex-1 rounded-2xl bg-gradient-to-r from-pink-500 to-fuchsia-500 py-3 font-bold text-white shadow-lg transition hover:shadow-[0_15px_40px_rgba(236,72,153,0.35)] disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        Confirmar turno
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

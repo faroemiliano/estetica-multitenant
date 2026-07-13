@@ -126,7 +126,7 @@ function CrearServicioForm({ recargarServicios }: any) {
 
             <option value="Uñas">Manos</option>
             <option value="Pies">Pies</option>
-            <option value="Perfilados">Perfilados</option>
+            <option value="Cejas y Pestañas">Cejas y Pestañas</option>
             <option value="Depilación Láser">Depilación Láser</option>
             <option value="Reflexología">Reflexología</option>
             <option value="Masajes">Masajes</option>
