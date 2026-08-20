@@ -2,6 +2,7 @@ import { useId, useRef, useState } from "react";
 
 type FechaNacimientoInputProps = {
   onChange: (value: string) => void;
+  initialValue?: string;
   required?: boolean;
   variant?: "rose" | "gray";
 };
@@ -28,14 +29,17 @@ const esFechaValida = (dia: string, mes: string, anio: string) => {
 
 function FechaNacimientoInput({
   onChange,
+  initialValue = "",
   required = false,
   variant = "gray",
 }: FechaNacimientoInputProps) {
   const id = useId();
   const anioRef = useRef<HTMLInputElement>(null);
-  const [dia, setDia] = useState("");
-  const [mes, setMes] = useState("");
-  const [anio, setAnio] = useState("");
+  const [anioInicial = "", mesInicial = "", diaInicial = ""] =
+    initialValue.split("-");
+  const [dia, setDia] = useState(diaInicial);
+  const [mes, setMes] = useState(mesInicial);
+  const [anio, setAnio] = useState(anioInicial);
 
   const actualizarFecha = (
     nuevoDia: string,

@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import AdminLayout from "../components/layout/AdminLayout";
-import { crearClienteAdmin, obtenerClientes } from "../services/clientes";
-import { UserPlus, Users, X } from "lucide-react";
+import {
+  actualizarClienteAdmin,
+  crearClienteAdmin,
+  eliminarClienteAdmin,
+  obtenerClientes,
+} from "../services/clientes";
+import { Pencil, Trash2, UserPlus, Users, X } from "lucide-react";
 import AdminSectionHeader from "../components/admin/AdminSectionHeader";
 import FechaNacimientoInput from "../components/FechaNacimientoInput";
 
@@ -20,6 +25,8 @@ function ClientesAdminPage() {
   const [pagina, setPagina] = useState(1);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [guardando, setGuardando] = useState(false);
+  const [eliminando, setEliminando] = useState<number | null>(null);
+  const [clienteEditando, setClienteEditando] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
     nombre_completo: "",
@@ -48,6 +55,35 @@ function ClientesAdminPage() {
     return `${dia}/${mes}/${anio}`;
   };
 
+  const limpiarFormulario = () => {
+    setForm({ nombre_completo: "", email: "", fecha_nacimiento: "", telefono: "" });
+    setClienteEditando(null);
+    setError("");
+  };
+
+  const abrirNuevoCliente = () => {
+    if (mostrarFormulario && clienteEditando === null) {
+      setMostrarFormulario(false);
+      limpiarFormulario();
+      return;
+    }
+    limpiarFormulario();
+    setMostrarFormulario(true);
+  };
+
+  const editarCliente = (cliente: Cliente) => {
+    setClienteEditando(cliente.id);
+    setForm({
+      nombre_completo: cliente.nombre_completo || "",
+      email: cliente.email || "",
+      fecha_nacimiento: cliente.fecha_nacimiento || "",
+      telefono: cliente.telefono || "",
+    });
+    setError("");
+    setMostrarFormulario(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const guardarCliente = async (event: React.FormEvent) => {
     event.preventDefault();
     const token = localStorage.getItem("token");
@@ -55,15 +91,20 @@ function ClientesAdminPage() {
     setGuardando(true);
     setError("");
     try {
-      await crearClienteAdmin(token, {
+      const body = {
         nombre_completo: form.nombre_completo.trim(),
         telefono: form.telefono.trim(),
         ...(form.email.trim() ? { email: form.email.trim() } : {}),
         ...(form.fecha_nacimiento
           ? { fecha_nacimiento: form.fecha_nacimiento }
           : {}),
-      });
-      setForm({ nombre_completo: "", email: "", fecha_nacimiento: "", telefono: "" });
+      };
+      if (clienteEditando !== null) {
+        await actualizarClienteAdmin(token, clienteEditando, body);
+      } else {
+        await crearClienteAdmin(token, body);
+      }
+      limpiarFormulario();
       setMostrarFormulario(false);
       setPagina(1);
       await cargarClientes();
@@ -75,6 +116,34 @@ function ClientesAdminPage() {
       );
     } finally {
       setGuardando(false);
+    }
+  };
+
+  const eliminarCliente = async (cliente: Cliente) => {
+    const confirmar = window.confirm(
+      `¿Querés eliminar a ${cliente.nombre_completo || "este cliente"}? Sus turnos anteriores conservarán el historial.`,
+    );
+    if (!confirmar) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    setEliminando(cliente.id);
+    setError("");
+    try {
+      await eliminarClienteAdmin(token, cliente.id);
+      if (clienteEditando === cliente.id) {
+        setMostrarFormulario(false);
+        limpiarFormulario();
+      }
+      await cargarClientes();
+    } catch (err) {
+      setError(
+        axios.isAxiosError(err) && typeof err.response?.data?.detail === "string"
+          ? err.response.data.detail
+          : "No se pudo eliminar el cliente.",
+      );
+    } finally {
+      setEliminando(null);
     }
   };
 
@@ -103,14 +172,11 @@ function ClientesAdminPage() {
           icon={<Users size={17} />}
           action={
             <button
-              onClick={() => {
-                setMostrarFormulario((visible) => !visible);
-                setError("");
-              }}
+              onClick={abrirNuevoCliente}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-pink-600 px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-pink-700"
             >
-              {mostrarFormulario ? <X size={18} /> : <UserPlus size={18} />}
-              {mostrarFormulario ? "Cerrar" : "Nuevo cliente"}
+              {mostrarFormulario && clienteEditando === null ? <X size={18} /> : <UserPlus size={18} />}
+              {mostrarFormulario && clienteEditando === null ? "Cerrar" : "Nuevo cliente"}
             </button>
           }
         />
@@ -118,7 +184,9 @@ function ClientesAdminPage() {
         {mostrarFormulario && (
           <form onSubmit={guardarCliente} className="rounded-3xl border border-pink-100 bg-white p-5 shadow-sm sm:p-7">
             <div>
-              <h2 className="text-xl font-black text-gray-900">Registrar cliente</h2>
+              <h2 className="text-xl font-black text-gray-900">
+                {clienteEditando !== null ? "Editar cliente" : "Registrar cliente"}
+              </h2>
               <p className="mt-1 text-sm text-gray-500">El email y la fecha de nacimiento son opcionales.</p>
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -134,17 +202,28 @@ function ClientesAdminPage() {
               <label className="text-sm font-bold text-gray-700">Nacimiento <span className="font-normal text-gray-400">(opcional)</span>
                 <div className="mt-2">
                   <FechaNacimientoInput
+                    key={clienteEditando ?? "nuevo"}
+                    initialValue={form.fecha_nacimiento}
                     onChange={(fecha_nacimiento) => setForm({ ...form, fecha_nacimiento })}
                   />
                 </div>
               </label>
             </div>
             {error && <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</p>}
-            <button disabled={guardando} className="mt-5 rounded-xl bg-pink-600 px-5 py-3 text-sm font-bold text-white hover:bg-pink-700 disabled:opacity-50">
-              {guardando ? "Guardando..." : "Crear cliente"}
-            </button>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <button disabled={guardando} className="rounded-xl bg-pink-600 px-5 py-3 text-sm font-bold text-white hover:bg-pink-700 disabled:opacity-50">
+                {guardando ? "Guardando..." : clienteEditando !== null ? "Guardar cambios" : "Crear cliente"}
+              </button>
+              {clienteEditando !== null && (
+                <button type="button" onClick={() => { setMostrarFormulario(false); limpiarFormulario(); }} className="rounded-xl border border-gray-200 px-5 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50">
+                  Cancelar
+                </button>
+              )}
+            </div>
           </form>
         )}
+
+        {!mostrarFormulario && error && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</p>}
 
         <div className="rounded-2xl border border-gray-200 bg-white p-4">
           <input
@@ -167,6 +246,7 @@ function ClientesAdminPage() {
                 <th className="px-6 py-4 text-left">Email</th>
                 <th className="px-6 py-4 text-left">Nacimiento</th>
                 <th className="px-6 py-4 text-left">Teléfono</th>
+                <th className="px-6 py-4 text-right">Acciones</th>
               </tr>
             </thead>
 
@@ -185,7 +265,6 @@ function ClientesAdminPage() {
                       </span>
                     </div>
                   </td>
-
                   {/* EMAIL */}
                   <td className="px-6 py-4 text-sm text-gray-600">
                     {cliente.email}
@@ -203,6 +282,18 @@ function ClientesAdminPage() {
                     <span className="inline-flex rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
                       {cliente.telefono || "Sin teléfono"}
                     </span>
+                  </td>
+
+                  {/* ACCIONES */}
+                  <td className="px-6 py-4">
+                    <div className="flex justify-end gap-2">
+                      <button onClick={() => editarCliente(cliente)} className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:border-pink-200 hover:bg-pink-50 hover:text-pink-700">
+                        <Pencil size={14} /> Editar
+                      </button>
+                      <button disabled={eliminando === cliente.id} onClick={() => eliminarCliente(cliente)} className="inline-flex items-center gap-1.5 rounded-lg border border-red-100 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 disabled:opacity-50">
+                        <Trash2 size={14} /> {eliminando === cliente.id ? "Eliminando..." : "Eliminar"}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -241,6 +332,14 @@ function ClientesAdminPage() {
                   </div>
 
                   <div>📞 {cliente.telefono || "Sin teléfono"}</div>
+                </div>
+                <div className="mt-4 flex gap-2 border-t border-gray-100 pt-4">
+                  <button onClick={() => editarCliente(cliente)} className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 px-3 py-2.5 text-sm font-bold text-gray-700">
+                    <Pencil size={15} /> Editar
+                  </button>
+                  <button disabled={eliminando === cliente.id} onClick={() => eliminarCliente(cliente)} className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-100 px-3 py-2.5 text-sm font-bold text-red-600 disabled:opacity-50">
+                    <Trash2 size={15} /> Eliminar
+                  </button>
                 </div>
               </div>
             ))}

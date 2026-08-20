@@ -47,3 +47,24 @@ export const crearClienteAdmin = async (
   });
   return response.data;
 };
+
+export const actualizarClienteAdmin = async (
+  token: string,
+  clienteId: number,
+  body: CrearClienteAdminBody,
+) => {
+  const response = await axios.put(`${api}/admin/clientes/${clienteId}`, body, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+export const eliminarClienteAdmin = async (
+  token: string,
+  clienteId: number,
+) => {
+  const response = await axios.delete(`${api}/admin/clientes/${clienteId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
