@@ -4,6 +4,7 @@ import AdminLayout from "../components/layout/AdminLayout";
 import { crearClienteAdmin, obtenerClientes } from "../services/clientes";
 import { UserPlus, Users, X } from "lucide-react";
 import AdminSectionHeader from "../components/admin/AdminSectionHeader";
+import FechaNacimientoInput from "../components/FechaNacimientoInput";
 
 type Cliente = {
   id: number;
@@ -131,7 +132,11 @@ function ClientesAdminPage() {
                 <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="cliente@email.com" className="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 font-normal outline-none focus:border-pink-400 focus:bg-white" />
               </label>
               <label className="text-sm font-bold text-gray-700">Nacimiento <span className="font-normal text-gray-400">(opcional)</span>
-                <input type="date" value={form.fecha_nacimiento} onChange={(e) => setForm({ ...form, fecha_nacimiento: e.target.value })} className="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 font-normal outline-none focus:border-pink-400 focus:bg-white" />
+                <div className="mt-2">
+                  <FechaNacimientoInput
+                    onChange={(fecha_nacimiento) => setForm({ ...form, fecha_nacimiento })}
+                  />
+                </div>
               </label>
             </div>
             {error && <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</p>}

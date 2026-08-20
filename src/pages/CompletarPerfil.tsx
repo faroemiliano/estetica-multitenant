@@ -5,6 +5,7 @@ import { completarPerfil } from "../services/clientes";
 import { useAuth } from "../context/AuthContext";
 
 import { useNavigate, useParams } from "react-router-dom";
+import FechaNacimientoInput from "../components/FechaNacimientoInput";
 
 function CompletarPerfilPage() {
   const navigate = useNavigate();
@@ -19,6 +20,11 @@ function CompletarPerfilPage() {
   });
 
   const guardarPerfil = async () => {
+    if (!form.fecha_nacimiento) {
+      alert("Ingresá una fecha de nacimiento válida con día, mes y año.");
+      return;
+    }
+
     if (!/^\+\d{7,15}$/.test(form.telefono.replace(/\s/g, ""))) {
       alert(
         "Ingresá un teléfono válido con código de país. Ej: +5491123456789",
@@ -110,31 +116,11 @@ focus:ring-pink-100
               Fecha de nacimiento
             </label>
 
-            <input
-              type="date"
-              className="
-w-full
-rounded-2xl
-border
-border-rose-200
-bg-rose-50/40
-px-5
-py-3.5
-text-gray-700
-placeholder:text-rose-300
-transition
-duration-200
-outline-none
-focus:border-pink-400
-focus:bg-white
-focus:ring-4
-focus:ring-pink-100
-"
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  fecha_nacimiento: e.target.value,
-                })
+            <FechaNacimientoInput
+              required
+              variant="rose"
+              onChange={(fecha_nacimiento) =>
+                setForm({ ...form, fecha_nacimiento })
               }
             />
           </div>
