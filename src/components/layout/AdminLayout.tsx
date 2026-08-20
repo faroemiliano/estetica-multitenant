@@ -6,7 +6,7 @@ type Props = {
 
 function AdminLayout({ children }: Props) {
   return (
-    <div className="min-h-screen w-full bg-gray-50">
+    <div className="min-h-screen w-full bg-stone-50">
       <main className="flex w-full justify-center px-4 py-6">
         <div className="w-full max-w-6xl">{children}</div>
       </main>

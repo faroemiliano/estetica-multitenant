@@ -1,6 +1,48 @@
 @import "tailwindcss";
+
+@theme {
+  /* Rosa viejo profundo: acciones, enlaces y estados principales */
+  --color-pink-50: #faf3f4;
+  --color-pink-100: #f3e3e6;
+  --color-pink-200: #e7c8ce;
+  --color-pink-300: #d49da8;
+  --color-pink-400: #b96c7c;
+  --color-pink-500: #98485b;
+  --color-pink-600: #7d3346;
+  --color-pink-700: #672a3b;
+  --color-pink-800: #572634;
+  --color-pink-900: #4a232e;
+
+  /* Marrón arena: complemento cálido para fondos y detalles */
+  --color-rose-50: #faf7f2;
+  --color-rose-100: #f1e8dd;
+  --color-rose-200: #e2d1be;
+  --color-rose-300: #cfb295;
+  --color-rose-400: #b88f6c;
+  --color-rose-500: #9d704f;
+  --color-rose-600: #83583e;
+  --color-rose-700: #6b4634;
+  --color-rose-800: #593b2f;
+  --color-rose-900: #4b332a;
+
+  --color-stone-50: #fbf8f4;
+  --color-stone-100: #f4eee7;
+  --color-stone-200: #e5d8ca;
+  --color-stone-300: #d3bea9;
+  --color-stone-400: #b99d83;
+  --color-stone-500: #9e8066;
+  --color-stone-600: #826650;
+  --color-stone-700: #695242;
+  --color-stone-800: #57463a;
+  --color-stone-900: #493c33;
+}
+
 :root {
   --spacing: 0.25rem;
+  --aura-primary: #7d3346;
+  --aura-primary-dark: #672a3b;
+  --aura-sand: #e5d8ca;
+  --aura-background: #f8f4ef;
 }
 /* * {
   margin: 0;
@@ -21,7 +63,7 @@ html {
 
 body {
   font-family: Inter, sans-serif;
-  background: #f7f4f2;
+  background: var(--aura-background);
   color: #1f1f1f;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -64,7 +106,7 @@ img {
 }
 
 .react-datepicker__header {
-  background: linear-gradient(to right, #ec4899, #f472b6) !important;
+  background: linear-gradient(135deg, var(--aura-primary), #9d704f) !important;
   border-bottom: none !important;
   padding-top: 16px !important;
 }
@@ -81,11 +123,11 @@ img {
 }
 
 .react-datepicker__day:hover {
-  background-color: #fbcfe8 !important;
+  background-color: #f1e8dd !important;
 }
 
 .react-datepicker__day--selected {
-  background-color: #ec4899 !important;
+  background-color: var(--aura-primary) !important;
   color: white !important;
 }
 

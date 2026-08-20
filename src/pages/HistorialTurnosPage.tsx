@@ -74,7 +74,7 @@ function HistorialTurnosPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f8f6f4]">
+    <main className="min-h-screen bg-stone-50">
       <section className="border-b border-stone-200 bg-white">
         <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 sm:py-14">
           <Link
