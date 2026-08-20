@@ -10,7 +10,10 @@ export const obtenerMiPerfil = async (token: string) => {
   });
 };
 
-export const completarPerfil = async (token: string, form: any) => {
+export const completarPerfil = async (
+  token: string,
+  form: Record<string, unknown>,
+) => {
   return axios.post(`${api}/completar-perfil`, form, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -25,5 +28,22 @@ export const obtenerClientes = async (token: string) => {
     },
   });
 
+  return response.data;
+};
+
+export type CrearClienteAdminBody = {
+  nombre_completo: string;
+  email?: string;
+  fecha_nacimiento?: string;
+  telefono: string;
+};
+
+export const crearClienteAdmin = async (
+  token: string,
+  body: CrearClienteAdminBody,
+) => {
+  const response = await axios.post(`${api}/admin/clientes`, body, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return response.data;
 };
