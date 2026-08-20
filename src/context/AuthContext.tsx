@@ -1,9 +1,12 @@
-import { createContext, useContext, useState } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useState, type ReactNode } from "react";
 
 type User = {
   id: number;
   role: string;
   email: string;
+  nombre?: string;
+  perfil_completo?: boolean;
 };
 
 type AuthContextType = {
@@ -11,11 +14,12 @@ type AuthContextType = {
   user: User | null;
   login: (token: string, user: User) => void;
   logout: () => void;
+  marcarPerfilCompleto: () => void;
 };
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
-export function AuthProvider({ children }: any) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() =>
     localStorage.getItem("token"),
   );
@@ -39,8 +43,20 @@ export function AuthProvider({ children }: any) {
     setUser(null);
   };
 
+  const marcarPerfilCompleto = () => {
+    setUser((usuarioActual) => {
+      if (!usuarioActual) return usuarioActual;
+      const usuarioActualizado = {
+        ...usuarioActual,
+        perfil_completo: true,
+      };
+      localStorage.setItem("user", JSON.stringify(usuarioActualizado));
+      return usuarioActualizado;
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ token, user, login, logout }}>
+    <AuthContext.Provider value={{ token, user, login, logout, marcarPerfilCompleto }}>
       {children}
     </AuthContext.Provider>
   );

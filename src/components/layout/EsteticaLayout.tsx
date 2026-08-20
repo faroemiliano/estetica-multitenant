@@ -1,8 +1,12 @@
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation, useParams } from "react-router-dom";
 import { EsteticaProvider, useEstetica } from "../../context/EsteticaContext";
+import { useAuth } from "../../context/AuthContext";
 
 function LayoutContent() {
   const { loading } = useEstetica();
+  const { token, user } = useAuth();
+  const { slug } = useParams();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -23,6 +27,31 @@ function LayoutContent() {
         </p>
       </div>
     );
+  }
+
+  const rutaPerfil = `/${slug}/completar-perfil`;
+  const estaCompletandoPerfil = location.pathname === rutaPerfil;
+
+  if (
+    token &&
+    user?.role === "cliente" &&
+    user.perfil_completo === false &&
+    !estaCompletandoPerfil
+  ) {
+    return <Navigate to={rutaPerfil} replace />;
+  }
+
+  if (!token && estaCompletandoPerfil) {
+    return <Navigate to={`/${slug}`} replace />;
+  }
+
+  if (
+    token &&
+    user?.role === "cliente" &&
+    user.perfil_completo === true &&
+    estaCompletandoPerfil
+  ) {
+    return <Navigate to={`/${slug}/dashboard`} replace />;
   }
 
   return <Outlet />;

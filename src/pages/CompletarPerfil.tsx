@@ -11,7 +11,7 @@ function CompletarPerfilPage() {
   const navigate = useNavigate();
   const { slug } = useParams();
 
-  const { token } = useAuth();
+  const { token, marcarPerfilCompleto } = useAuth();
 
   const [form, setForm] = useState({
     nombre_completo: "",
@@ -36,15 +36,7 @@ function CompletarPerfilPage() {
       if (!token) return;
       await completarPerfil(token, form);
 
-      const user = JSON.parse(localStorage.getItem("user") || "null");
-
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          ...user,
-          perfil_completo: true,
-        }),
-      );
+      marcarPerfilCompleto();
 
       navigate(`/${slug}/dashboard`);
     } catch (error: unknown) {
