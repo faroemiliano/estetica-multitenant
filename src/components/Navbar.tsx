@@ -30,6 +30,13 @@ function Navbar() {
       >
         Panel administrador
       </button>
+    ) : user?.perfil_completo === false ? (
+      <button
+        onClick={() => irA(`/${slug}/completar-perfil`)}
+        className="flex items-center justify-center gap-2 rounded-xl bg-pink-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-pink-700"
+      >
+        Completar registro
+      </button>
     ) : (
       <>
         <button

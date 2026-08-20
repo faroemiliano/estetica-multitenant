@@ -12,6 +12,10 @@ function Hero() {
 
   const reservar = () => {
     if (token) {
+      if (user?.role === "cliente" && user.perfil_completo === false) {
+        navigate(`/${slug}/completar-perfil`);
+        return;
+      }
       navigate(
         user?.role === "admin" ? `/${slug}/admin` : `/${slug}/dashboard`,
       );
@@ -47,7 +51,13 @@ function Hero() {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <button onClick={reservar} className="flex items-center justify-center gap-2 rounded-xl bg-pink-600 px-6 py-4 font-bold text-white shadow-lg hover:bg-pink-700">
               <CalendarDays size={20} />
-              {token && user?.role !== "admin" ? "Reservar turno" : token ? "Ir al panel" : "Ver servicios"}
+              {token && user?.role === "cliente" && user.perfil_completo === false
+                ? "Completar registro para reservar"
+                : token && user?.role !== "admin"
+                  ? "Reservar turno"
+                  : token
+                    ? "Ir al panel"
+                    : "Ver servicios"}
             </button>
             {whatsapp && (
               <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 rounded-xl border border-white/35 bg-white/10 px-6 py-4 font-bold text-white backdrop-blur hover:bg-white/20">

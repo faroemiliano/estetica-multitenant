@@ -39,6 +39,10 @@ function Servicios() {
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
+    if (user?.role === "cliente" && user.perfil_completo === false) {
+      navigate(`/${slug}/completar-perfil`);
+      return;
+    }
     navigate(user?.role === "admin" ? `/${slug}/admin` : `/${slug}/dashboard`);
   };
 
@@ -80,7 +84,11 @@ function Servicios() {
             </div>
             <div className="mt-12 flex justify-center">
               <button onClick={continuar} className="flex items-center gap-2 rounded-xl bg-gray-900 px-6 py-4 font-bold text-white hover:bg-pink-700">
-                {token ? "Elegir servicio y horario" : "Iniciá sesión para reservar"} <ArrowRight size={19} />
+                {token && user?.role === "cliente" && user.perfil_completo === false
+                  ? "Completá tu registro para reservar"
+                  : token
+                    ? "Elegir servicio y horario"
+                    : "Iniciá sesión para reservar"} <ArrowRight size={19} />
               </button>
             </div>
           </>

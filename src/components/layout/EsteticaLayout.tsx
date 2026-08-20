@@ -30,13 +30,16 @@ function LayoutContent() {
   }
 
   const rutaPerfil = `/${slug}/completar-perfil`;
+  const rutaInicio = `/${slug}`;
   const estaCompletandoPerfil = location.pathname === rutaPerfil;
+  const estaEnInicio = location.pathname === rutaInicio || location.pathname === `${rutaInicio}/`;
 
   if (
     token &&
     user?.role === "cliente" &&
     user.perfil_completo === false &&
-    !estaCompletandoPerfil
+    !estaCompletandoPerfil &&
+    !estaEnInicio
   ) {
     return <Navigate to={rutaPerfil} replace />;
   }
