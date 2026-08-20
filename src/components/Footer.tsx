@@ -1,103 +1,68 @@
+import { Camera, Clock3, MapPin, MessageCircle } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
 import { useEstetica } from "../context/EsteticaContext";
+
+type Horario = { inicio: string; fin: string; dia?: string };
 
 function Footer() {
   const { estetica } = useEstetica();
-
-  type Horario = {
-    inicio: string;
-    fin: string;
-  };
-
-  let horarios: Horario[] = [];
-
-  try {
-    if (Array.isArray(estetica?.horarios)) {
-      horarios = estetica.horarios;
-    } else if (estetica?.horarios) {
-      horarios = JSON.parse(estetica.horarios) as Horario[];
+  const { slug } = useParams();
+  const horarios = (() => {
+    try {
+      const valor: unknown = estetica?.horarios;
+      return Array.isArray(valor)
+        ? (valor as Horario[])
+        : typeof valor === "string" && valor
+          ? (JSON.parse(valor) as Horario[])
+          : [];
+    } catch {
+      return [];
     }
-  } catch {
-    horarios = [];
-  }
+  })();
+
+  const whatsapp = estetica?.whatsapp?.replace(/\D/g, "");
 
   return (
-    <footer className="border-t border-pink-100 bg-gradient-to-b from-white to-pink-50 text-gray-700">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-12 px-6 py-12 md:flex-row md:items-start md:justify-between">
-        {/* BRAND + HORARIOS */}
-        <div className="max-w-sm">
-          {horarios.length > 0 && (
-            <div className="mt-5 rounded-2xl bg-white/70 p-4 shadow-sm">
-              <p className="text-xs font-bold uppercase tracking-widest text-pink-500">
-                Horarios de atención
-              </p>
-
-              <div className="mt-3 flex flex-col gap-1 text-sm text-gray-600">
-                {horarios.map((horario, index) => (
-                  <p key={index}>
-                    {horario.inicio} a {horario.fin}
-                  </p>
-                ))}
-              </div>
+    <footer id="contacto" className="scroll-mt-18 bg-gray-950 text-white">
+      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 md:grid-cols-3">
+        <div>
+          <Link to={`/${slug}`} className="flex items-center gap-3">
+            <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-white">
+              {estetica?.logo_url ? <img src={estetica.logo_url} alt={`Logo de ${estetica.nombre}`} className="h-full w-full object-contain p-1" /> : <span className="font-black text-pink-600">E</span>}
             </div>
-          )}
+            <div>
+              <p className="font-black">{estetica?.nombre || "Estética"}</p>
+              <p className="mt-1 text-xs text-gray-400">Belleza, bienestar y cuidado</p>
+            </div>
+          </Link>
+          <p className="mt-5 max-w-sm text-sm leading-6 text-gray-400">Un espacio pensado para que te cuides, te relajes y disfrutes un momento para vos.</p>
         </div>
 
-        {/* LOGO CENTRAL */}
-        <div className="flex flex-col items-center justify-center text-center">
-          <div className="flex h-38 w-38 items-center justify-center rounded-full bg-white shadow-xl ring-4 ring-pink-100">
-            <img
-              src={estetica?.logo_url || "/logo-placeholder.png"}
-              alt="Logo"
-              className="h-100 w-80 object-contain"
-            />
+        <div>
+          <h3 className="text-sm font-bold uppercase tracking-widest text-white">Contacto</h3>
+          <div className="mt-5 space-y-4 text-sm text-gray-300">
+            <p className="flex items-start gap-3"><MapPin className="mt-0.5 shrink-0 text-pink-500" size={18} />{estetica?.direccion || "Consultá nuestra ubicación"}</p>
+            {whatsapp && <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noreferrer" className="flex items-center gap-3 transition hover:text-white"><MessageCircle className="text-pink-500" size={18} />{estetica?.whatsapp}</a>}
+            {estetica?.instagram_url && <a href={estetica.instagram_url} target="_blank" rel="noreferrer" className="flex items-center gap-3 transition hover:text-white"><Camera className="text-pink-500" size={18} />Instagram</a>}
           </div>
-
-          <p className="mt-4 text-xs font-semibold tracking-[0.3em] text-pink-500">
-            ESTÉTICA · BELLEZA · BIENESTAR
-          </p>
         </div>
 
-        {/* CONTACTO */}
-        <div className="md:text-right">
-          <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-gray-500">
-            Contacto
-          </h3>
-
-          <div className="flex flex-col gap-3 text-sm text-gray-600">
-            <p>📍 {estetica?.direccion || "Dirección no definida"}</p>
-
-            {estetica?.whatsapp && (
-              <a
-                href={`https://wa.me/${estetica.whatsapp.replace(/\D/g, "")}`}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-2 font-medium transition hover:text-green-600"
-              >
-                <span className="text-lg">💬</span>
-                {estetica.whatsapp}
-              </a>
-            )}
-
-            {estetica?.instagram_url && (
-              <a
-                href={estetica.instagram_url}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-2 font-medium text-pink-500 transition hover:text-pink-600"
-              >
-                <span className="text-lg">📸</span>
-                Instagram
-              </a>
-            )}
-          </div>
+        <div>
+          <h3 className="text-sm font-bold uppercase tracking-widest text-white">Horarios de atención</h3>
+          {horarios.length > 0 ? (
+            <div className="mt-5 space-y-3 text-sm text-gray-300">
+              {horarios.map((horario, index) => (
+                <div key={`${horario.inicio}-${index}`} className="flex items-center gap-3"><Clock3 className="shrink-0 text-pink-500" size={18} /><span>{horario.dia ? `${horario.dia}: ` : ""}{horario.inicio} a {horario.fin}</span></div>
+              ))}
+            </div>
+          ) : <p className="mt-5 text-sm text-gray-400">Consultá los horarios disponibles al reservar.</p>}
         </div>
       </div>
 
-      {/* COPYRIGHT */}
-      <div className="border-t border-pink-100 bg-white/60">
-        <div className="mx-auto max-w-6xl px-6 py-6 text-center text-xs text-gray-400">
-          © {new Date().getFullYear()} {estetica?.nombre || "Estética"} · Todos
-          los derechos reservados por www.farixio.com
+      <div className="border-t border-white/10">
+        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-5 py-5 text-center text-xs text-gray-500 sm:flex-row sm:justify-between sm:px-8 sm:text-left">
+          <p>© {new Date().getFullYear()} {estetica?.nombre || "Estética"}. Todos los derechos reservados.</p>
+          <p>Desarrollado por Farixio</p>
         </div>
       </div>
     </footer>

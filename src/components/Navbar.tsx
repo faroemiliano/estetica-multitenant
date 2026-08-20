@@ -1,9 +1,8 @@
-import { useNavigate, Link } from "react-router-dom";
-import GoogleLoginButton from "./GoogleLoginButton";
-import { useParams } from "react-router-dom";
-import { useEstetica } from "../context/EsteticaContext";
+import { CalendarDays, LogOut, Menu, X } from "lucide-react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import GoogleLoginButton from "./GoogleLoginButton";
+import { useEstetica } from "../context/EsteticaContext";
 import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
@@ -13,133 +12,114 @@ function Navbar() {
   const { token, user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleLogout = () => {
-    logout();
-    navigate(`/${slug}`);
+  const irA = (destino: string) => {
+    navigate(destino);
     setMenuOpen(false);
   };
 
-  const logoUrl = estetica?.logo_url;
-  const nombre = estetica?.nombre;
+  const handleLogout = () => {
+    logout();
+    irA(`/${slug}`);
+  };
 
-  const NavLinks = () => (
-    <>
-      {token && user?.role === "admin" ? (
+  const linksSesion = token ? (
+    user?.role === "admin" ? (
+      <button
+        onClick={() => irA(`/${slug}/admin`)}
+        className="rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-bold text-white hover:bg-gray-700"
+      >
+        Panel administrador
+      </button>
+    ) : (
+      <>
         <button
-          onClick={() => {
-            navigate(`/${slug}/admin`);
-            setMenuOpen(false);
-          }}
-          className="rounded-2xl border border-gray-200 bg-white px-6 py-2.5 text-md font-semibold"
+          onClick={() => irA(`/${slug}/dashboard`)}
+          className="flex items-center justify-center gap-2 rounded-xl bg-pink-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-pink-700"
         >
-          Panel Admin
+          <CalendarDays size={17} /> Reservar turno
         </button>
-      ) : (
-        token && (
-          <>
-            <button
-              onClick={() => {
-                navigate(`/${slug}/dashboard`);
-                setMenuOpen(false);
-              }}
-              className="rounded-2xl border border-gray-200 bg-white px-6 py-2.5 text-sm font-semibold"
-            >
-              Obtener Turno
-            </button>
-
-            <button
-              onClick={() => {
-                navigate(`/${slug}/mis-turnos`);
-                setMenuOpen(false);
-              }}
-              className="rounded-2xl border border-gray-200 bg-white px-6 py-2.5 text-sm font-semibold"
-            >
-              Mis turnos
-            </button>
-
-            <button
-              onClick={() => {
-                navigate(`/${slug}/historial`);
-                setMenuOpen(false);
-              }}
-              className="rounded-2xl border border-gray-200 bg-white px-6 py-2.5 text-sm font-semibold"
-            >
-              🗄️ Historial
-            </button>
-          </>
-        )
-      )}
-    </>
-  );
+        <button
+          onClick={() => irA(`/${slug}/mis-turnos`)}
+          className="rounded-xl px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100"
+        >
+          Mis turnos
+        </button>
+      </>
+    )
+  ) : null;
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-stone-200 bg-white/80 backdrop-blur-xl">
-      <div className="flex items-center justify-between px-4 py-3 md:px-6 md:py-4">
-        {/* LEFT - LOGO */}
-        <Link to={`/${slug}`} className="flex items-center">
-          <img
-            src={logoUrl || "/placeholder-logo.png"}
-            alt={nombre || "logo"}
-            className="h-10 w-auto origin-left object-contain scale-[6] md:scale-[6.8]"
-          />
+    <nav className="sticky top-0 z-50 border-b border-stone-200/80 bg-white/95 backdrop-blur-xl">
+      <div className="mx-auto flex h-18 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
+        <Link to={`/${slug}`} className="flex min-w-0 items-center gap-3">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-pink-50">
+            {estetica?.logo_url ? (
+              <img
+                src={estetica.logo_url}
+                alt={`Logo de ${estetica.nombre}`}
+                className="h-full w-full object-contain p-1"
+              />
+            ) : (
+              <span className="text-xl font-black text-pink-600">
+                {estetica?.nombre?.charAt(0) || "E"}
+              </span>
+            )}
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-base font-black text-gray-900">
+              {estetica?.nombre || "Estética"}
+            </p>
+            <p className="hidden text-xs text-gray-500 sm:block">
+              Belleza y bienestar
+            </p>
+          </div>
         </Link>
 
-        {/* CENTER (DESKTOP ONLY) */}
-        <div className="hidden md:flex items-center gap-3">
-          <NavLinks />
+        <div className="hidden items-center gap-1 lg:flex">
+          <a href="#inicio" className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100">Inicio</a>
+          <a href="#servicios" className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100">Servicios</a>
+          <a href="#contacto" className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100">Contacto</a>
         </div>
 
-        {/* RIGHT */}
-        <div className="flex items-center gap-3">
-          {/* USER + LOGOUT (DESKTOP ONLY) */}
-          {token && (
-            <div className="hidden lg:flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-sm font-semibold text-gray-800">
-                  {user?.email}
-                </p>
-                <p className="text-xs uppercase text-gray-400">{user?.role}</p>
-              </div>
-
-              <button
-                onClick={handleLogout}
-                className="rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600"
-              >
-                Cerrar sesión
-              </button>
-            </div>
-          )}
-
-          {/* LOGIN (MOBILE + DESKTOP IF NO TOKEN) */}
+        <div className="hidden items-center gap-2 md:flex">
+          {linksSesion}
           {!token && <GoogleLoginButton />}
-
-          {/* HAMBURGER (MOBILE ONLY) */}
-          <button className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
-            {menuOpen ? <X size={26} /> : <Menu size={26} />}
-          </button>
+          {token && (
+            <button
+              onClick={handleLogout}
+              title="Cerrar sesión"
+              className="rounded-xl p-2.5 text-gray-500 hover:bg-red-50 hover:text-red-600"
+            >
+              <LogOut size={19} />
+            </button>
+          )}
         </div>
+
+        <button
+          aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((abierto) => !abierto)}
+          className="rounded-xl p-2 text-gray-700 hover:bg-gray-100 md:hidden"
+        >
+          {menuOpen ? <X size={25} /> : <Menu size={25} />}
+        </button>
       </div>
 
-      {/* MOBILE MENU */}
       {menuOpen && (
-        <div className="md:hidden flex flex-col gap-3 px-4 pb-4">
-          <NavLinks />
-
-          {token && (
-            <>
-              <div className="text-sm text-gray-700">
-                <p className="font-semibold">{user?.email}</p>
-                <p className="text-xs uppercase text-gray-400">{user?.role}</p>
-              </div>
-
-              <button
-                onClick={handleLogout}
-                className="rounded-xl bg-red-500 px-4 py-2 text-white text-sm"
-              >
-                Cerrar sesión
+        <div className="border-t border-gray-100 bg-white px-4 py-4 md:hidden">
+          <div className="mx-auto flex max-w-7xl flex-col gap-2">
+            <a href="#inicio" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-3 text-sm font-semibold hover:bg-gray-50">Inicio</a>
+            <a href="#servicios" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-3 text-sm font-semibold hover:bg-gray-50">Servicios</a>
+            <a href="#contacto" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-3 text-sm font-semibold hover:bg-gray-50">Contacto</a>
+            <div className="my-2 border-t border-gray-100" />
+            {linksSesion}
+            {!token && <GoogleLoginButton />}
+            {token && (
+              <button onClick={handleLogout} className="mt-1 flex items-center justify-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm font-bold text-red-600">
+                <LogOut size={17} /> Cerrar sesión
               </button>
-            </>
-          )}
+            )}
+          </div>
         </div>
       )}
     </nav>

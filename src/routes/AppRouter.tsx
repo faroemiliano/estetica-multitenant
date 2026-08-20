@@ -18,6 +18,7 @@ import AdminCrearProfesional from "../components/admin/AdminCrearProfesiona";
 import CrearHorariosEsteticas from "../components/admin/CrearHorariosEstetica";
 import HistorialTurnosPage from "../pages/HistorialTurnosPage";
 import EsteticaLayout from "../components/layout/EsteticaLayout";
+import ServiciosAdminPage from "../pages/ServiciosAdminPage";
 
 function AppRouter() {
   return (
@@ -44,6 +45,7 @@ function AppRouter() {
           />
           <Route path="/:slug/historial" element={<HistorialTurnosPage />} />
           <Route path="/:slug/admin/clientes" element={<ClientesAdminPage />} />
+          <Route path="/:slug/admin/servicios" element={<ServiciosAdminPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

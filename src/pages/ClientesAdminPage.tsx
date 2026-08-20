@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../components/layout/AdminLayout";
 import { obtenerClientes } from "../services/clientes";
-import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { Users } from "lucide-react";
+import AdminSectionHeader from "../components/admin/AdminSectionHeader";
 
 function ClientesAdminPage() {
   const [clientes, setClientes] = useState<any[]>([]);
-
-  const navigate = useNavigate();
-  const { slug } = useParams();
+  const [busqueda, setBusqueda] = useState("");
+  const [pagina, setPagina] = useState(1);
+  const porPagina = 10;
 
   useEffect(() => {
     cargarClientes();
@@ -28,18 +28,36 @@ function ClientesAdminPage() {
     return `${dia}/${mes}/${anio}`;
   };
 
+  const clientesFiltrados = clientes.filter((cliente) =>
+    `${cliente.nombre_completo || ""} ${cliente.email || ""} ${cliente.telefono || ""}`
+      .toLowerCase()
+      .includes(busqueda.toLowerCase().trim()),
+  );
+  const totalPaginas = Math.max(
+    1,
+    Math.ceil(clientesFiltrados.length / porPagina),
+  );
+  const paginaActual = Math.min(pagina, totalPaginas);
+  const clientesPagina = clientesFiltrados.slice(
+    (paginaActual - 1) * porPagina,
+    paginaActual * porPagina,
+  );
+
   return (
     <AdminLayout>
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-6">
-        {/* HEADER */}
-        <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
-            Clientes
-          </h1>
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+        <AdminSectionHeader eyebrow="Comunidad" title="Clientes" description="Buscá y consultá la información de los clientes registrados en la estética." icon={<Users size={17} />} />
 
-          <p className="text-sm text-gray-500">
-            Clientes registrados en la estética
-          </p>
+        <div className="rounded-2xl border border-gray-200 bg-white p-4">
+          <input
+            value={busqueda}
+            onChange={(event) => {
+              setBusqueda(event.target.value);
+              setPagina(1);
+            }}
+            placeholder="Buscar por nombre, email o teléfono"
+            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-pink-400"
+          />
         </div>
 
         {/* DESKTOP TABLE */}
@@ -55,7 +73,7 @@ function ClientesAdminPage() {
             </thead>
 
             <tbody className="divide-y divide-gray-100">
-              {clientes.map((cliente) => (
+              {clientesPagina.map((cliente) => (
                 <tr key={cliente.id} className="transition hover:bg-gray-50/70">
                   {/* NOMBRE */}
                   <td className="px-6 py-4">
@@ -95,7 +113,7 @@ function ClientesAdminPage() {
 
           {/* MOBILE CARDS */}
           <div className="grid gap-4 p-4 md:hidden">
-            {clientes.map((cliente) => (
+            {clientesPagina.map((cliente) => (
               <div
                 key={cliente.id}
                 className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md"
@@ -129,14 +147,33 @@ function ClientesAdminPage() {
               </div>
             ))}
           </div>
+          <div className="flex flex-col items-center justify-between gap-3 border-t border-gray-100 px-5 py-4 sm:flex-row">
+            <p className="text-sm text-gray-500">
+              Mostrando {clientesPagina.length} de {clientesFiltrados.length} clientes
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                disabled={paginaActual === 1}
+                onClick={() => setPagina((actual) => Math.max(1, actual - 1))}
+                className="rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold disabled:opacity-40"
+              >
+                Anterior
+              </button>
+              <span className="px-2 text-sm font-semibold">
+                {paginaActual} / {totalPaginas}
+              </span>
+              <button
+                disabled={paginaActual === totalPaginas}
+                onClick={() =>
+                  setPagina((actual) => Math.min(totalPaginas, actual + 1))
+                }
+                className="rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold disabled:opacity-40"
+              >
+                Siguiente
+              </button>
+            </div>
+          </div>
         </div>
-        <button
-          onClick={() => navigate(`/${slug}/admin`)}
-          className="flex items-center gap-2 rounded-xl  bg-pink-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
-        >
-          <ArrowLeft size={18} />
-          Panel
-        </button>
       </div>
     </AdminLayout>
   );

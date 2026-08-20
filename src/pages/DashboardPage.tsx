@@ -1,513 +1,342 @@
-import { useEffect, useState } from "react";
+import axios from "axios";
+import { useEffect, useMemo, useState } from "react";
+import DatePicker from "react-datepicker";
+import {
+  ArrowLeft,
+  CalendarDays,
+  Check,
+  Clock3,
+  MessageCircle,
+  Sparkles,
+  UserRound,
+  X,
+} from "lucide-react";
+import { Link, useParams } from "react-router-dom";
+import "react-datepicker/dist/react-datepicker.css";
 import { crearTurno, obtenerHorariosDisponibles } from "../services/turnos";
 import { obtenerServicios } from "../services/servicios";
-import { Link } from "react-router-dom";
-import DatePicker from "react-datepicker";
-import { useParams } from "react-router-dom";
-import "react-datepicker/dist/react-datepicker.css";
+import { useEstetica } from "../context/EsteticaContext";
+
+type Profesional = { id: number; nombre?: string };
+type Servicio = {
+  id: number;
+  nombre: string;
+  descripcion?: string;
+  categoria?: string;
+  precio?: number;
+  duracion?: number;
+  requiere_whatsapp?: boolean;
+  profesional_id?: number;
+  profesional?: Profesional;
+};
+
+const fechaLocal = (fecha: Date) => {
+  const anio = fecha.getFullYear();
+  const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+  const dia = String(fecha.getDate()).padStart(2, "0");
+  return `${anio}-${mes}-${dia}`;
+};
+
+const mensajeError = (error: unknown) => {
+  if (axios.isAxiosError(error)) {
+    const detalle = error.response?.data?.detail;
+    if (typeof detalle === "string") return detalle;
+  }
+  return "No pudimos completar la operación. Intentá nuevamente.";
+};
 
 function DashboardPage() {
   const { slug } = useParams();
-  const [servicios, setServicios] = useState<any[]>([]);
+  const { estetica } = useEstetica();
+  const [servicios, setServicios] = useState<Servicio[]>([]);
+  const [categoria, setCategoria] = useState("Todos");
+  const [busqueda, setBusqueda] = useState("");
+  const [servicio, setServicio] = useState<Servicio | null>(null);
   const [fecha, setFecha] = useState<Date | null>(null);
   const [horarios, setHorarios] = useState<string[]>([]);
-  const [horaSeleccionada, setHoraSeleccionada] = useState("");
-
-  const [modalCategoria, setModalCategoria] = useState(false);
-  const [modalReserva, setModalReserva] = useState(false);
-  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<
-    string | null
-  >(null);
-  const [profesionalSeleccionado, setProfesionalSeleccionado] = useState<
-    number | null
-  >(null);
-
-  const [servicioSeleccionado, setServicioSeleccionado] = useState<any>(null);
+  const [hora, setHora] = useState("");
+  const [cargando, setCargando] = useState(true);
+  const [buscandoHorarios, setBuscandoHorarios] = useState(false);
+  const [guardando, setGuardando] = useState(false);
+  const [error, setError] = useState("");
+  const [exito, setExito] = useState(false);
 
   useEffect(() => {
-    cargarServicios();
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    obtenerServicios(token)
+      .then((data) => setServicios(Array.isArray(data) ? data : []))
+      .catch((err) => setError(mensajeError(err)))
+      .finally(() => setCargando(false));
   }, []);
 
-  useEffect(() => {
-    console.log("useEffect ejecutado");
-    console.log(fecha);
-    console.log(profesionalSeleccionado);
+  const categorias = useMemo(
+    () => [
+      "Todos",
+      ...Array.from(
+        new Set(servicios.map((item) => item.categoria || "Otros")),
+      ),
+    ],
+    [servicios],
+  );
 
-    if (!fecha || !profesionalSeleccionado || !servicioSeleccionado) return;
+  const serviciosVisibles = useMemo(() => {
+    const texto = busqueda.toLowerCase().trim();
+    return servicios.filter((item) => {
+      const coincideCategoria =
+        categoria === "Todos" || (item.categoria || "Otros") === categoria;
+      const coincideTexto = `${item.nombre} ${item.descripcion || ""}`
+        .toLowerCase()
+        .includes(texto);
+      return coincideCategoria && coincideTexto;
+    });
+  }, [busqueda, categoria, servicios]);
 
-    cargarHorarios();
-  }, [fecha, profesionalSeleccionado, servicioSeleccionado]);
-
-  const cargarServicios = async () => {
-    const token = localStorage.getItem("token");
-
-    if (!token) return;
-
-    const data = await obtenerServicios(token);
-
-    setServicios(data);
+  const seleccionarServicio = (seleccionado: Servicio) => {
+    setServicio(seleccionado);
+    setFecha(null);
+    setHora("");
+    setHorarios([]);
+    setError("");
+    setExito(false);
   };
 
-  const cargarHorarios = async () => {
+  const cerrarModal = () => {
+    if (guardando) return;
+    setServicio(null);
+    setExito(false);
+    setError("");
+  };
+
+  const seleccionarFecha = async (nuevaFecha: Date | null) => {
+    setFecha(nuevaFecha);
+    setHora("");
+    setHorarios([]);
+    setError("");
+
     const token = localStorage.getItem("token");
+    const profesionalId =
+      servicio?.profesional?.id ?? servicio?.profesional_id;
+    if (!token || !nuevaFecha || !servicio || !profesionalId) return;
 
-    if (!token || !fecha || !profesionalSeleccionado || !servicioSeleccionado)
-      return;
-
-    const data = await obtenerHorariosDisponibles(
-      token,
-      fecha.toISOString().split("T")[0],
-      profesionalSeleccionado,
-      servicioSeleccionado.id,
-    );
-
-    setHorarios(data);
+    setBuscandoHorarios(true);
+    try {
+      const disponibles = await obtenerHorariosDisponibles(
+        token,
+        fechaLocal(nuevaFecha),
+        profesionalId,
+        servicio.id,
+      );
+      setHorarios(Array.isArray(disponibles) ? disponibles : []);
+    } catch (err) {
+      setError(mensajeError(err));
+    } finally {
+      setBuscandoHorarios(false);
+    }
   };
 
   const confirmarReserva = async () => {
     const token = localStorage.getItem("token");
+    if (!token || !servicio || !fecha || !hora) return;
 
-    if (!token || !servicioSeleccionado || !fecha) return;
-
+    setGuardando(true);
+    setError("");
     try {
       await crearTurno(token, {
-        servicio_id: servicioSeleccionado.id,
-        fecha: fecha.toISOString().split("T")[0],
-        hora: horaSeleccionada,
+        servicio_id: servicio.id,
+        fecha: fechaLocal(fecha),
+        hora,
       });
-
-      alert("Turno reservado correctamente");
-
-      setModalReserva(false);
-
-      setServicioSeleccionado(null);
-
-      cargarHorarios();
-    } catch (error) {
-      console.log(error);
+      setExito(true);
+    } catch (err) {
+      setError(mensajeError(err));
+    } finally {
+      setGuardando(false);
     }
   };
 
-  const serviciosAgrupados = servicios.reduce((acc: any, servicio: any) => {
-    const categoria = servicio.categoria || "Otros";
-
-    if (!acc[categoria]) {
-      acc[categoria] = [];
-    }
-
-    acc[categoria].push(servicio);
-
-    return acc;
-  }, {});
+  const whatsapp = estetica?.whatsapp?.replace(/\D/g, "");
 
   return (
-    <div className="flex min-h-screen justify-center bg-gradient-to-br from-pink-50 via-rose-50 to-fuchsia-100 px-4 py-16">
-      {/* CONTAINER */}
-      <div className="flex w-full max-w-6xl flex-col items-center">
-        {/* HEADER */}
-        <div className="mb-16 flex flex-col items-center text-center">
-          <span className="mb-5 rounded-full bg-gradient-to-r from-pink-500 to-fuchsia-500 px-6 py-2 text-xs font-bold uppercase tracking-[0.3em] text-white shadow-lg">
-            Reserva online
-          </span>
-
-          <h1 className="max-w-3xl text-5xl font-black tracking-tight text-gray-900 md:text-6xl">
-            Reservá tu turno
-          </h1>
-        </div>
-
-        {/* <div className="grid w-full gap-8 lg:grid-cols-2">
-          
-          <div className="relative overflow-visible rounded-[36px] border border-pink-100 bg-white/90 p-8 shadow-[0_20px_60px_rgba(236,72,153,0.10)] backdrop-blur">
-            <div className="mb-8 flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-gradient-to-br from-pink-500 to-fuchsia-500 text-2xl text-white shadow-lg">
-                📅
-              </div>
-
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900">
-                  Elegí una fecha
-                </h3>
-
-                <p className="text-sm text-gray-500">
-                  Seleccioná el día ideal para tu turno
-                </p>
-              </div>
-            </div>
-
-            <DatePicker
-              selected={fecha}
-              minDate={new Date()}
-              onChange={(date: Date | null) => setFecha(date)}
-              dateFormat="yyyy-MM-dd"
-              popperPlacement="bottom-start"
-              popperClassName="z-[9999]"
-              calendarClassName="shadow-2xl border border-pink-100 rounded-3xl"
-              placeholderText="Seleccionar fecha"
-            />
-          </div>
-
-      
-          <div className="rounded-[36px] border border-fuchsia-100 bg-white/90 p-8 shadow-[0_20px_60px_rgba(217,70,239,0.10)] ">
-            <div className="mb-8 flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-gradient-to-br from-fuchsia-500 to-pink-500 text-2xl text-white shadow-lg">
-                ⏰
-              </div>
-
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900">
-                  Horarios disponibles
-                </h3>
-
-                <p className="text-sm text-gray-500">
-                  Elegí el horario perfecto para vos
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-3">
-              {horarios.length === 0 ? (
-                <div className="flex w-full items-center justify-center rounded-3xl border border-dashed border-pink-200 bg-pink-50/40 py-12 text-center">
-                  <p className="max-w-sm text-sm text-gray-500">
-                    Seleccioná una fecha para visualizar los horarios
-                    disponibles.
-                  </p>
-                </div>
-              ) : (
-                horarios.map((h) => (
-                  <button
-                    key={h}
-                    onClick={() => setHoraSeleccionada(h)}
-                    className={`rounded-2xl px-5 py-3 text-sm font-bold transition-all duration-300 ${
-                      horaSeleccionada === h
-                        ? "scale-105 bg-gradient-to-r from-pink-500 to-fuchsia-500 text-white shadow-xl"
-                        : "border border-pink-200 bg-pink-50 text-gray-700 hover:border-pink-400 hover:bg-pink-100"
-                    }`}
-                  >
-                    {h}
-                  </button>
-                ))
-              )}
-            </div>
-          </div>
-        </div> */}
-
-        {/* SERVICIOS */}
-        <div className="mt-10">
-          <div className="mb-12 flex flex-col items-center text-center">
-            <span className="mb-4 rounded-full bg-pink-100 px-5 py-2 text-xs font-bold uppercase tracking-[0.2em] text-pink-700">
-              Servicios
-            </span>
-
-            <h2 className="text-4xl font-black text-gray-900">
-              Elegí tu experiencia
-            </h2>
-
-            <p className="mt-4 max-w-2xl text-gray-500">
-              Servicios premium diseñados para resaltar tu belleza y bienestar.
-            </p>
-          </div>
-
-          {servicios.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-[32px] border border-dashed border-pink-200 bg-pink-50/30 py-20 text-center">
-              <h3 className="text-2xl font-bold text-gray-700">
-                No hay servicios disponibles
-              </h3>
-
-              <p className="mt-3 text-gray-500">
-                Esta estética todavía no cargó servicios.
+    <main className="min-h-screen bg-[#f8f6f4]">
+      <section className="border-b border-stone-200 bg-white">
+        <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 sm:py-14">
+          <Link
+            to={`/${slug}`}
+            className="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 transition hover:text-gray-900"
+          >
+            <ArrowLeft size={17} /> Volver al inicio
+          </Link>
+          <div className="mt-6 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.18em] text-pink-600">
+                <Sparkles size={16} /> Reserva online
+              </p>
+              <h1 className="mt-3 text-4xl font-black tracking-tight text-gray-900 sm:text-5xl">
+                Elegí tu próximo servicio
+              </h1>
+              <p className="mt-4 max-w-2xl text-gray-500">
+                Seleccioná una opción, elegí el día y confirmá uno de los horarios disponibles.
               </p>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 xl:grid-cols-4">
-              {Object.entries(serviciosAgrupados).map(
-                ([categoria, serviciosCategoria]: any) => {
-                  const abierto = categoriaSeleccionada === categoria;
-
-                  return (
-                    <div
-                      key={categoria}
-                      onClick={() => {
-                        setCategoriaSeleccionada(categoria);
-                        setModalCategoria(true);
-                      }}
-                      className={`cursor-pointer rounded-3xl border border-pink-100 bg-white shadow-sm transition-all duration-300 ${
-                        abierto ? "p-8" : "p-5"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-2xl font-black text-gray-900">
-                          {categoria}
-
-                          <div className="mt-2 text-sm text-gray-500">
-                            {serviciosCategoria.length} servicios disponibles
-                          </div>
-
-                          <div className="mt-2 text-xs font-semibold text-pink-500">
-                            Click para ver servicios →
-                          </div>
-                        </h3>
-
-                        <span className="font-bold text-pink-500">→</span>
-                      </div>
-                    </div>
-                  );
-                },
-              )}
-            </div>
-          )}
-          {/* BOTONES */}
-          <div className="mt-14 flex flex-wrap items-center justify-center gap-4">
-            <Link
-              to={`/${slug}`}
-              className="rounded-2xl border border-pink-200 bg-white px-6 py-3 text-sm font-bold text-gray-700 shadow-sm transition hover:bg-pink-50"
-            >
-              Volver al inicio
-            </Link>
-
             <Link
               to={`/${slug}/mis-turnos`}
-              className="rounded-2xl bg-gradient-to-r from-pink-500 to-fuchsia-500 px-6 py-3 text-sm font-bold text-white shadow-lg transition hover:shadow-[0_15px_40px_rgba(236,72,153,0.35)]"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50"
             >
-              Ver mis turnos
+              <CalendarDays size={18} /> Ver mis turnos
             </Link>
           </div>
         </div>
-        {modalCategoria && categoriaSeleccionada && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
-            <div className="w-full max-w-3xl rounded-[32px] bg-white p-6 shadow-2xl">
-              <div className="mb-6 flex items-center justify-between">
-                <h2 className="text-2xl font-black text-gray-900">
-                  {categoriaSeleccionada}
-                </h2>
+      </section>
 
-                <button
-                  onClick={() => setModalCategoria(false)}
-                  className="rounded-xl bg-gray-100 px-4 py-2 text-sm font-bold"
-                >
-                  Cerrar
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {(serviciosAgrupados[categoriaSeleccionada] || []).map(
-                  (servicio: any) => (
-                    <div
-                      key={servicio.id}
-                      onClick={() => {
-                        setServicioSeleccionado(servicio);
-                        console.log("SERVICIO SELECCIONADO:", servicio);
-                        setProfesionalSeleccionado(
-                          servicio.profesional?.id || null,
-                        );
-
-                        setFecha(null);
-                        setHorarios([]);
-                        setHoraSeleccionada("");
-
-                        setModalCategoria(false);
-
-                        setModalReserva(true);
-                      }}
-                      className="cursor-pointer rounded-3xl border border-pink-100 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-                    >
-                      <span className="inline-block rounded-full bg-pink-100 px-3 py-1 text-xs font-bold text-pink-600">
-                        {servicio.categoria || "Otros"}
-                      </span>
-                      <div className="flex items-start justify-between">
-                        <h3 className="font-bold text-gray-900">
-                          {servicio.nombre}
-                        </h3>
-
-                        <span className="rounded-full bg-pink-100 px-3 py-1 text-sm font-bold text-pink-600">
-                          ${servicio.precio}
-                        </span>
-                      </div>
-
-                      <p className="mt-2 text-sm text-gray-500">
-                        {servicio.descripcion}
-                      </p>
-
-                      <p className="mt-3 text-xs text-gray-400">
-                        {servicio.duracion} min
-                      </p>
-                    </div>
-                  ),
-                )}
-              </div>
-            </div>
+      <section className="mx-auto max-w-7xl px-5 py-10 sm:px-8 sm:py-14">
+        <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+          <input
+            value={busqueda}
+            onChange={(event) => setBusqueda(event.target.value)}
+            placeholder="Buscar un servicio"
+            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none focus:border-pink-400 focus:bg-white"
+          />
+          <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+            {categorias.map((item) => (
+              <button
+                key={item}
+                onClick={() => setCategoria(item)}
+                className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold ${
+                  categoria === item
+                    ? "bg-gray-900 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-pink-50 hover:text-pink-700"
+                }`}
+              >
+                {item}
+              </button>
+            ))}
           </div>
+        </div>
+
+        {error && !servicio && (
+          <p className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</p>
         )}
-        {/* MODAL */}
-        {modalReserva && servicioSeleccionado && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-6 backdrop-blur-sm overflow-y-auto">
-            {" "}
-            <div className="w-full max-w-2xl max-h-[95vh] overflow-hidden rounded-[40px] bg-white shadow-[0_30px_120px_rgba(236,72,153,0.35)] flex flex-col">
-              {" "}
-              {/* HEADER */}
-              <div className="bg-gradient-to-r from-pink-500 via-fuchsia-500 to-rose-500 px-8 py-8 text-white">
-                <h2 className="text-3xl font-black">Confirmar reserva</h2>
-                <p className="mt-2 text-sm text-white/80">
-                  Elegí fecha y horario para tu turno
+
+        {cargando ? (
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((item) => (
+              <div key={item} className="h-72 animate-pulse rounded-3xl bg-white" />
+            ))}
+          </div>
+        ) : serviciosVisibles.length ? (
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {serviciosVisibles.map((item) => (
+              <article
+                key={item.id}
+                className="group flex min-h-72 flex-col rounded-3xl border border-stone-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-pink-200 hover:shadow-xl"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <span className="rounded-full bg-pink-50 px-3 py-1.5 text-xs font-bold text-pink-700">
+                    {item.categoria || "Otros"}
+                  </span>
+                  {item.precio != null && (
+                    <span className="text-xl font-black text-gray-900">
+                      ${Number(item.precio).toLocaleString("es-AR")}
+                    </span>
+                  )}
+                </div>
+                <h2 className="mt-5 text-2xl font-black text-gray-900">{item.nombre}</h2>
+                <p className="mt-3 line-clamp-3 text-sm leading-6 text-gray-500">
+                  {item.descripcion || "Conocé todos los detalles al seleccionar este servicio."}
                 </p>
-              </div>
-              {/* CONTENT */}
-              {/* CONTENT */}
-              <div className="p-8 space-y-8 overflow-y-auto flex-1">
-                {servicioSeleccionado.requiere_whatsapp ? (
-                  <>
-                    <div className="rounded-3xl border border-yellow-200 bg-yellow-50 p-6">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100 text-2xl">
-                          ⚠️
-                        </div>
-
-                        <div>
-                          <h3 className="text-xl font-black text-gray-800">
-                            Reserva especial
-                          </h3>
-
-                          <p className="text-sm text-gray-600">
-                            Este servicio requiere una evaluación previa.
-                          </p>
-                        </div>
-                      </div>
-
-                      <p className="mt-5 leading-7 text-gray-700">
-                        El servicio{" "}
-                        <strong>{servicioSeleccionado.nombre}</strong> requiere
-                        una coordinación previa con nuestro equipo. Comunicate
-                        por WhatsApp para recibir asesoramiento y reservar tu
-                        turno.
-                      </p>
-
-                      <a
-                        href="https://wa.me/541162582878"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-6 flex w-full items-center justify-center rounded-2xl bg-green-500 px-5 py-4 font-bold text-white transition hover:bg-green-600"
-                      >
-                        💬 Hablar por WhatsApp
-                      </a>
-                    </div>
-
-                    <button
-                      onClick={() => setModalReserva(false)}
-                      className="w-full rounded-2xl border border-gray-200 py-3 font-semibold text-gray-600 transition hover:bg-gray-50"
-                    >
-                      Volver
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    {/* SERVICIO */}
-                    <div className="rounded-3xl bg-pink-50/60 p-5">
-                      <p className="text-xs font-bold uppercase tracking-widest text-pink-500">
-                        Servicio seleccionado
-                      </p>
-
-                      <h3 className="mt-2 text-2xl font-black text-gray-900">
-                        {servicioSeleccionado.nombre}
-                      </h3>
-
-                      <p className="mt-1 text-sm text-gray-500">
-                        {servicioSeleccionado.descripcion}
-                      </p>
-
-                      <span className="mt-3 inline-block rounded-full bg-pink-100 px-3 py-1 text-sm font-bold text-pink-600">
-                        ${servicioSeleccionado.precio}
-                      </span>
-                    </div>
-
-                    {/* GRID */}
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                      <div>
-                        <p className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-500">
-                          Seleccionar fecha
-                        </p>
-
-                        <div className="rounded-3xl border border-pink-100 p-3 shadow-sm">
-                          <DatePicker
-                            selected={fecha}
-                            minDate={new Date()}
-                            onChange={(date: Date | null) => setFecha(date)}
-                            inline
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <p className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-500">
-                          Horarios disponibles
-                        </p>
-
-                        <div className="max-h-[320px] overflow-y-auto rounded-3xl border border-pink-100 p-4">
-                          {horarios.length === 0 ? (
-                            <p className="py-10 text-center text-sm text-gray-400">
-                              Seleccioná una fecha para ver horarios
-                            </p>
-                          ) : (
-                            <div className="grid grid-cols-2 gap-3">
-                              {horarios.map((h) => (
-                                <button
-                                  key={h}
-                                  onClick={() => setHoraSeleccionada(h)}
-                                  className={`rounded-2xl px-4 py-3 text-sm font-bold transition ${
-                                    horaSeleccionada === h
-                                      ? "bg-gradient-to-r from-pink-500 to-fuchsia-500 text-white shadow-lg"
-                                      : "bg-pink-50 text-gray-700 hover:bg-pink-100"
-                                  }`}
-                                >
-                                  {h}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* RESUMEN */}
-                    <div className="rounded-3xl bg-gray-50 p-5">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500">Fecha</span>
-                        <span className="font-semibold">
-                          {fecha ? fecha.toISOString().split("T")[0] : "-"}
-                        </span>
-                      </div>
-
-                      <div className="mt-2 flex justify-between text-sm">
-                        <span className="text-gray-500">Horario</span>
-                        <span className="font-semibold">
-                          {horaSeleccionada || "-"}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* BOTONES */}
-                    <div className="flex gap-4 pt-2">
-                      <button
-                        onClick={() => setModalReserva(false)}
-                        className="flex-1 rounded-2xl border border-gray-200 py-3 font-semibold text-gray-600 transition hover:bg-gray-50"
-                      >
-                        Cancelar
-                      </button>
-
-                      <button
-                        disabled={!fecha || !horaSeleccionada}
-                        onClick={confirmarReserva}
-                        className="flex-1 rounded-2xl bg-gradient-to-r from-pink-500 to-fuchsia-500 py-3 font-bold text-white shadow-lg transition hover:shadow-[0_15px_40px_rgba(236,72,153,0.35)] disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        Confirmar turno
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
+                <div className="mt-5 flex flex-wrap gap-3 text-xs font-semibold text-gray-500">
+                  {item.duracion && <span className="flex items-center gap-1.5"><Clock3 size={15} /> {item.duracion} min</span>}
+                  {item.profesional?.nombre && <span className="flex items-center gap-1.5"><UserRound size={15} /> {item.profesional.nombre}</span>}
+                </div>
+                <button
+                  onClick={() => seleccionarServicio(item)}
+                  className="mt-auto w-full rounded-xl bg-gray-900 px-5 py-3.5 text-sm font-bold text-white transition group-hover:bg-pink-600"
+                >
+                  {item.requiere_whatsapp ? "Consultar disponibilidad" : "Elegir fecha y horario"}
+                </button>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-8 rounded-3xl border border-dashed border-gray-300 bg-white py-16 text-center">
+            <h2 className="text-xl font-bold text-gray-800">No encontramos servicios</h2>
+            <p className="mt-2 text-sm text-gray-500">Probá con otra categoría o búsqueda.</p>
           </div>
         )}
-      </div>
-    </div>
+      </section>
+
+      {servicio && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/55 p-3 backdrop-blur-sm sm:items-center">
+          <div className="max-h-[94vh] w-full max-w-4xl overflow-y-auto rounded-3xl bg-white shadow-2xl">
+            <div className="sticky top-0 z-10 flex items-start justify-between border-b border-gray-100 bg-white px-5 py-4 sm:px-7">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-pink-600">Tu selección</p>
+                <h2 className="mt-1 text-xl font-black text-gray-900">{servicio.nombre}</h2>
+              </div>
+              <button onClick={cerrarModal} className="rounded-xl bg-gray-100 p-2 text-gray-600 hover:bg-gray-200" aria-label="Cerrar"><X size={20} /></button>
+            </div>
+
+            {exito ? (
+              <div className="flex flex-col items-center px-6 py-16 text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-700"><Check size={32} /></div>
+                <h3 className="mt-6 text-3xl font-black text-gray-900">¡Turno reservado!</h3>
+                <p className="mt-3 max-w-md text-gray-500">Tu reserva se guardó correctamente. Podés consultarla desde Mis turnos.</p>
+                <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                  <button onClick={cerrarModal} className="rounded-xl border border-gray-200 px-5 py-3 font-bold text-gray-700">Seguir viendo servicios</button>
+                  <Link to={`/${slug}/mis-turnos`} className="rounded-xl bg-gray-900 px-5 py-3 font-bold text-white">Ver mis turnos</Link>
+                </div>
+              </div>
+            ) : servicio.requiere_whatsapp ? (
+              <div className="px-6 py-10 sm:px-10">
+                <div className="mx-auto max-w-xl rounded-3xl border border-amber-200 bg-amber-50 p-7 text-center">
+                  <MessageCircle className="mx-auto text-amber-700" size={38} />
+                  <h3 className="mt-4 text-2xl font-black text-gray-900">Este servicio requiere coordinación</h3>
+                  <p className="mt-3 leading-7 text-gray-600">Contactanos para evaluar tu caso y encontrar el turno indicado.</p>
+                  {whatsapp && <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noreferrer" className="mt-6 flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-4 font-bold text-white hover:bg-emerald-700"><MessageCircle size={19} /> Hablar por WhatsApp</a>}
+                </div>
+              </div>
+            ) : (
+              <div className="grid lg:grid-cols-[0.85fr_1.15fr]">
+                <aside className="border-b border-gray-100 bg-gray-50 p-6 lg:border-b-0 lg:border-r sm:p-8">
+                  <span className="rounded-full bg-pink-100 px-3 py-1 text-xs font-bold text-pink-700">{servicio.categoria || "Servicio"}</span>
+                  <h3 className="mt-5 text-2xl font-black text-gray-900">{servicio.nombre}</h3>
+                  <p className="mt-3 text-sm leading-6 text-gray-500">{servicio.descripcion}</p>
+                  <div className="mt-6 space-y-3 border-t border-gray-200 pt-5 text-sm">
+                    {servicio.precio != null && <div className="flex justify-between"><span className="text-gray-500">Precio</span><strong>${Number(servicio.precio).toLocaleString("es-AR")}</strong></div>}
+                    {servicio.duracion && <div className="flex justify-between"><span className="text-gray-500">Duración</span><strong>{servicio.duracion} min</strong></div>}
+                    {servicio.profesional?.nombre && <div className="flex justify-between gap-4"><span className="text-gray-500">Profesional</span><strong className="text-right">{servicio.profesional.nombre}</strong></div>}
+                  </div>
+                </aside>
+
+                <div className="p-6 sm:p-8">
+                  <div className="grid gap-7 sm:grid-cols-2">
+                    <div>
+                      <p className="mb-3 flex items-center gap-2 text-sm font-bold text-gray-800"><span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-900 text-xs text-white">1</span> Elegí una fecha</p>
+                      <div className="overflow-hidden rounded-2xl border border-gray-200">
+                        <DatePicker selected={fecha} minDate={new Date()} onChange={seleccionarFecha} inline />
+                      </div>
+                    </div>
+                    <div>
+                      <p className="mb-3 flex items-center gap-2 text-sm font-bold text-gray-800"><span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-900 text-xs text-white">2</span> Elegí un horario</p>
+                      <div className="min-h-64 rounded-2xl border border-gray-200 p-4">
+                        {buscandoHorarios ? <p className="py-16 text-center text-sm text-gray-500">Buscando horarios...</p> : horarios.length ? (
+                          <div className="grid grid-cols-2 gap-2">
+                            {horarios.map((item) => <button key={item} onClick={() => setHora(item)} className={`rounded-xl px-3 py-3 text-sm font-bold ${hora === item ? "bg-pink-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-pink-50"}`}>{item}</button>)}
+                          </div>
+                        ) : <p className="py-16 text-center text-sm leading-6 text-gray-400">{fecha ? "No hay horarios disponibles para este día." : "Seleccioná una fecha para ver los horarios."}</p>}
+                      </div>
+                    </div>
+                  </div>
+                  {error && <p className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</p>}
+                  <button disabled={!fecha || !hora || guardando} onClick={confirmarReserva} className="mt-6 w-full rounded-xl bg-gray-900 px-5 py-4 font-bold text-white hover:bg-pink-700 disabled:cursor-not-allowed disabled:opacity-40">{guardando ? "Guardando turno..." : fecha && hora ? `Confirmar turno · ${fecha.toLocaleDateString("es-AR")} ${hora}` : "Elegí fecha y horario"}</button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </main>
   );
 }
 

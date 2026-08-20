@@ -3,15 +3,14 @@ import { actualizarEstetica, obtenerEstetica } from "../services/esteticas";
 
 import { Navigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import { Settings } from "lucide-react";
+import AdminLayout from "../components/layout/AdminLayout";
+import AdminSectionHeader from "../components/admin/AdminSectionHeader";
 
 function ConfigEsteticaPage() {
   const { slug } = useParams();
 
   const user = JSON.parse(localStorage.getItem("user") || "null");
-
-  if (!user || user.role !== "admin") {
-    return <Navigate to={`/${slug}`} replace />;
-  }
 
   const [form, setForm] = useState({
     logo_url: "",
@@ -67,23 +66,14 @@ function ConfigEsteticaPage() {
     load();
   }, [slug]);
 
+  if (!user || user.role !== "admin") {
+    return <Navigate to={`/${slug}`} replace />;
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-fuchsia-100 px-4 py-12">
-      <div className="mx-auto max-w-3xl">
-        {/* HEADER */}
-        <div className="mb-10 text-center">
-          <span className="mb-4 inline-block rounded-full bg-gradient-to-r from-pink-500 to-fuchsia-500 px-5 py-2 text-xs font-bold uppercase tracking-[0.2em] text-white shadow-lg">
-            Administración
-          </span>
-
-          <h1 className="text-4xl font-black text-gray-900">
-            Configuración de la Estética
-          </h1>
-
-          <p className="mt-3 text-gray-500">
-            Personalizá la apariencia y los datos de tu página.
-          </p>
-        </div>
+    <AdminLayout>
+      <div className="mx-auto max-w-4xl">
+        <AdminSectionHeader eyebrow="Ajustes" title="Configuración" description="Personalizá la imagen pública, los datos de contacto y la ubicación de la estética." icon={<Settings size={17} />} />
 
         {/* CARD */}
         <div className="rounded-[36px]  border border-pink-100 bg-white p-8 shadow-[0_20px_60px_rgba(236,72,153,0.10)]">
@@ -192,7 +182,7 @@ function ConfigEsteticaPage() {
           </div>
         </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 }
 

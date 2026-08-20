@@ -12,6 +12,20 @@ export const crearTurno = async (token: string, body: any) => {
   return res.data;
 };
 
+export type CrearTurnoAdminBody = {
+  cliente_id: number;
+  servicio_id: number;
+  fecha: string;
+  hora: string;
+};
+
+// El mismo recurso conserva la reserva del cliente. Cuando quien está
+// autenticado es administrador, cliente_id indica a quién se le asigna.
+export const crearTurnoAdmin = async (
+  token: string,
+  body: CrearTurnoAdminBody,
+) => crearTurno(token, body);
+
 export const obtenerMisTurnos = async (token: string) => {
   const res = await axios.get(`${api}/mis-turnos`, {
     headers: {

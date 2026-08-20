@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { UserRound } from "lucide-react";
+import AdminLayout from "../layout/AdminLayout";
+import AdminSectionHeader from "./AdminSectionHeader";
 
 function AdminCrearProfesional() {
   const api = import.meta.env.VITE_API_URL;
@@ -17,10 +18,6 @@ function AdminCrearProfesional() {
   );
 
   const [disponibilidad, setDisponibilidad] = useState<any[]>([]);
-
-  const navigate = useNavigate();
-
-  const { slug } = useParams();
 
   const DIAS = [
     "Lunes",
@@ -159,21 +156,9 @@ function AdminCrearProfesional() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-fuchsia-100 p-4 md:p-8">
+    <AdminLayout>
       <div className="mx-auto max-w-5xl">
-        <div className="mb-10 text-center">
-          <span className="mb-4 inline-block rounded-full bg-pink-100 px-5 py-2 text-xs font-bold uppercase tracking-widest text-pink-700">
-            Equipo
-          </span>
-
-          <h1 className="text-4xl font-black text-gray-900">
-            Gestión de profesionales
-          </h1>
-
-          <p className="mt-3 text-gray-500">
-            Administrá horarios y disponibilidad del equipo.
-          </p>
-        </div>
+        <AdminSectionHeader eyebrow="Equipo" title="Profesionales" description="Administrá integrantes, nombres y disponibilidad semanal del equipo." icon={<UserRound size={17} />} />
 
         <div className="mb-10 rounded-[32px] border border-pink-100 bg-white p-6 shadow-lg">
           <div className="flex flex-col gap-3 md:flex-row">
@@ -360,15 +345,8 @@ function AdminCrearProfesional() {
             </div>
           ))}
         </div>
-        <button
-          onClick={() => navigate(`/${slug}/admin`)}
-          className="flex items-center mt-2 gap-2 rounded-xl  bg-pink-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
-        >
-          <ArrowLeft size={18} />
-          Panel
-        </button>
       </div>
-    </div>
+    </AdminLayout>
   );
 }
 

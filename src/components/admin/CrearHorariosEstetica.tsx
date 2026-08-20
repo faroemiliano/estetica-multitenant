@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { Clock3 } from "lucide-react";
+import AdminLayout from "../layout/AdminLayout";
+import AdminSectionHeader from "./AdminSectionHeader";
 
 const api = import.meta.env.VITE_API_URL;
 
@@ -14,9 +15,6 @@ function CrearHorariosEsteticas() {
   const [horarios, setHorarios] = useState<Horario[]>([
     { inicio: "08:00", fin: "14:00" },
   ]);
-  const navigate = useNavigate();
-  const { slug } = useParams();
-
   useEffect(() => {
     cargarHorarios();
   }, []);
@@ -77,18 +75,9 @@ function CrearHorariosEsteticas() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white px-4 py-10">
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
-        {/* HEADER */}
-        <div className="text-center">
-          <h1 className="text-3xl font-extrabold text-gray-900 md:text-4xl">
-            Horarios de atención
-          </h1>
-
-          <p className="mt-2 text-sm text-gray-500">
-            Configurá los bloques horarios de tu estética
-          </p>
-        </div>
+    <AdminLayout>
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+        <AdminSectionHeader eyebrow="Disponibilidad" title="Horarios de atención" description="Configurá los bloques generales en los que la estética recibe turnos." icon={<Clock3 size={17} />} />
 
         {/* CARD */}
         <div className="rounded-3xl border border-gray-100 bg-white p-5 shadow-[0_20px_60px_rgba(0,0,0,0.06)] md:p-8">
@@ -161,17 +150,10 @@ function CrearHorariosEsteticas() {
             >
               Guardar horarios
             </button>
-            <button
-              onClick={() => navigate(`/${slug}/admin`)}
-              className="flex items-center gap-2 rounded-xl  bg-pink-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
-            >
-              <ArrowLeft size={18} />
-              Panel
-            </button>
           </div>
         </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 }
 
