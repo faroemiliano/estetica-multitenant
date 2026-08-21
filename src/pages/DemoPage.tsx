@@ -1,14 +1,17 @@
 import { useState } from "react";
 import {
-  ArrowRight,
+  ArrowDown,
   BarChart3,
   CalendarDays,
+  Camera,
   Check,
   CheckCircle2,
   Clock3,
   Eye,
   LayoutDashboard,
   Menu,
+  MapPin,
+  MessageCircle,
   Scissors,
   Settings,
   Sparkles,
@@ -41,9 +44,12 @@ const encabezadosAdmin: Record<SeccionAdmin, { titulo: string; descripcion: stri
 };
 
 const servicios = [
-  { nombre: "Limpieza facial profunda", detalle: "Renovación, hidratación y luminosidad", duracion: "60 min", precio: "$28.000" },
-  { nombre: "Drenaje linfático", detalle: "Tratamiento corporal manual y relajante", duracion: "45 min", precio: "$24.000" },
-  { nombre: "Manicura semipermanente", detalle: "Preparación, esmaltado y terminación", duracion: "50 min", precio: "$18.500" },
+  { nombre: "Limpieza facial profunda", categoria: "Faciales", detalle: "Renovación, hidratación y luminosidad", duracion: "60 min", precio: "$28.000" },
+  { nombre: "Dermaplaning", categoria: "Faciales", detalle: "Exfoliación y renovación de la piel", duracion: "50 min", precio: "$26.000" },
+  { nombre: "Drenaje linfático", categoria: "Corporales", detalle: "Tratamiento corporal manual y relajante", duracion: "45 min", precio: "$24.000" },
+  { nombre: "Masaje descontracturante", categoria: "Corporales", detalle: "Bienestar y alivio de tensiones", duracion: "50 min", precio: "$25.000" },
+  { nombre: "Manicura semipermanente", categoria: "Manos y pies", detalle: "Preparación, esmaltado y terminación", duracion: "50 min", precio: "$18.500" },
+  { nombre: "Belleza de pies", categoria: "Manos y pies", detalle: "Cuidado completo y esmaltado", duracion: "60 min", precio: "$20.000" },
 ];
 
 const turnos = [
@@ -114,59 +120,66 @@ function DemoPage() {
 
       {vista === "cliente" ? (
         <>
-          <nav className="border-b border-stone-200 bg-white">
-            <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:px-8">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-pink-600 text-xl font-black text-white">A</div>
-                <div><p className="font-black">Alma Estética</p><p className="text-xs text-gray-500">Belleza y bienestar</p></div>
+          <nav className="sticky top-[76px] z-50 border-b border-stone-200/80 bg-white/95 backdrop-blur-xl sm:top-[52px]">
+            <div className="mx-auto flex h-18 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-pink-50 text-xl font-black text-pink-600">A</div>
+                <div className="min-w-0"><p className="truncate text-base font-black">Alma Estética</p><p className="hidden text-xs text-gray-500 sm:block">Belleza y bienestar</p></div>
               </div>
-              <div className="hidden items-center gap-7 text-sm font-semibold text-gray-600 md:flex">
-                <span>Inicio</span><span>Servicios</span><span>Contacto</span>
-                <button onClick={() => document.getElementById("demo-servicios")?.scrollIntoView({ behavior: "smooth" })} className="rounded-xl bg-pink-600 px-5 py-3 font-bold text-white hover:bg-pink-700">Reservar turno</button>
+              <div className="hidden items-center gap-1 lg:flex">
+                <a href="#demo-inicio" className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100">Inicio</a>
+                <a href="#demo-servicios" className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100">Servicios</a>
+                <a href="#demo-contacto" className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100">Contacto</a>
               </div>
+              <button onClick={() => setServicioElegido(servicios[0])} className="hidden rounded-lg border border-stone-200 bg-white px-4 py-2.5 text-sm font-bold text-gray-700 shadow-sm hover:bg-stone-50 md:block">Continuar con Google</button>
               <Menu className="md:hidden" />
             </div>
           </nav>
 
-          <section className="relative min-h-[620px] overflow-hidden bg-gray-900">
-            <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=2074&auto=format&fit=crop" alt="Salón de estética de demostración" className="absolute inset-0 h-full w-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/20" />
-            <div className="relative mx-auto flex min-h-[620px] max-w-7xl items-center px-5 py-20 sm:px-8">
+          <section id="demo-inicio" className="relative min-h-[calc(100vh-72px)] overflow-hidden bg-gray-900">
+            <img src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?q=80&w=2070&auto=format&fit=crop" alt="Espacio de Alma Estética" className="absolute inset-0 h-full w-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/50 to-black/15" />
+            <div className="relative mx-auto flex min-h-[calc(100vh-72px)] max-w-7xl items-center px-5 py-20 sm:px-8">
               <div className="max-w-2xl text-white">
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] backdrop-blur"><Sparkles size={15} /> Tu momento</span>
-                <h1 className="mt-6 text-5xl font-black leading-[1.05] tracking-tight sm:text-7xl">Sentite bien.<br />Sentite vos.</h1>
-                <p className="mt-6 max-w-xl text-lg leading-8 text-white/80">Tratamientos personalizados y profesionales que cuidan cada detalle. Reservá online en pocos pasos.</p>
-                <button onClick={() => document.getElementById("demo-servicios")?.scrollIntoView({ behavior: "smooth" })} className="mt-8 inline-flex items-center gap-2 rounded-xl bg-pink-600 px-6 py-4 font-bold text-white shadow-xl hover:bg-pink-700">Elegir un servicio <ArrowRight size={19} /></button>
+                <span className="inline-flex rounded-full border border-white/30 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] backdrop-blur-md">Belleza · bienestar · cuidado</span>
+                <h1 className="mt-6 text-4xl font-black leading-[1.08] tracking-tight sm:text-6xl lg:text-7xl">Un momento de cuidado pensado para vos</h1>
+                <p className="mt-6 max-w-xl text-base leading-7 text-white/85 sm:text-lg">Conocé nuestros tratamientos, elegí el que necesitás y reservá tu turno online de forma simple.</p>
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                  <button onClick={() => document.getElementById("demo-servicios")?.scrollIntoView({ behavior: "smooth" })} className="flex items-center justify-center gap-2 rounded-xl bg-pink-600 px-6 py-4 font-bold text-white shadow-lg hover:bg-pink-700"><CalendarDays size={20} /> Ver servicios</button>
+                  <button className="flex items-center justify-center gap-2 rounded-xl border border-white/35 bg-white/10 px-6 py-4 font-bold text-white backdrop-blur hover:bg-white/20"><MessageCircle size={20} /> Consultar por WhatsApp</button>
+                </div>
               </div>
             </div>
+            <a href="#demo-servicios" aria-label="Ver servicios" className="absolute bottom-6 left-1/2 -translate-x-1/2 rounded-full border border-white/30 bg-black/20 p-3 text-white backdrop-blur transition hover:bg-black/40"><ArrowDown size={20} /></a>
           </section>
 
-          <section id="demo-servicios" className="scroll-mt-32 px-5 py-20 sm:px-8 sm:py-28">
-            <div className="mx-auto max-w-7xl">
+          <section id="demo-servicios" className="scroll-mt-32 bg-[#faf8f6] px-5 py-20 sm:py-28">
+            <div className="mx-auto w-full max-w-7xl">
               <div className="mx-auto max-w-2xl text-center">
-                <p className="text-sm font-bold uppercase tracking-[0.2em] text-pink-600">Servicios destacados</p>
-                <h2 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">Elegí tu próximo cuidado</h2>
-                <p className="mt-4 text-gray-500">Cada estética puede cargar sus propios servicios, precios, duraciones y profesionales.</p>
+                <p className="text-sm font-bold uppercase tracking-[0.22em] text-pink-600">Nuestros servicios</p>
+                <h2 className="mt-4 text-3xl font-black tracking-tight sm:text-5xl">Elegí el cuidado ideal para vos</h2>
+                <p className="mt-5 leading-7 text-gray-500">Explorá las opciones disponibles y reservá online cuando estés lista.</p>
               </div>
-              <div className="mt-12 grid gap-5 md:grid-cols-3">
-                {servicios.map((servicio) => (
-                  <article key={servicio.nombre} className="flex flex-col rounded-3xl border border-stone-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:border-pink-300 hover:shadow-xl">
-                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pink-50 text-pink-700"><Sparkles size={22} /></span>
-                    <h3 className="mt-6 text-xl font-black">{servicio.nombre}</h3>
-                    <p className="mt-3 flex-1 text-sm leading-6 text-gray-500">{servicio.detalle}</p>
-                    <div className="mt-6 flex items-center justify-between border-t border-stone-100 pt-5"><span className="flex items-center gap-1.5 text-sm font-semibold text-gray-500"><Clock3 size={16} />{servicio.duracion}</span><strong>{servicio.precio}</strong></div>
-                    <button onClick={() => setServicioElegido(servicio)} className="mt-5 rounded-xl bg-pink-600 px-5 py-3 text-sm font-bold text-white hover:bg-pink-700">Reservar</button>
-                  </article>
-                ))}
+              <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                {Array.from(new Set(servicios.map((servicio) => servicio.categoria))).map((categoria) => {
+                  const lista = servicios.filter((servicio) => servicio.categoria === categoria);
+                  return <article key={categoria} className="rounded-3xl border border-stone-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-widest text-pink-600">Categoría</p><h3 className="mt-2 text-2xl font-black">{categoria}</h3></div><span className="rounded-full bg-pink-50 px-3 py-1 text-xs font-bold text-pink-700">{lista.length}</span></div><div className="mt-6 space-y-3 border-t border-gray-100 pt-5">{lista.map((servicio) => <div key={servicio.nombre} className="flex items-start gap-3"><span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-pink-100 text-pink-700"><Check size={13} strokeWidth={3} /></span><span className="text-sm font-medium leading-5 text-gray-700">{servicio.nombre}</span></div>)}</div></article>;
+                })}
+              </div>
+              <div className="mt-12 flex justify-center">
+                <button onClick={() => setServicioElegido(servicios[0])} className="flex items-center gap-2 rounded-xl bg-gray-900 px-6 py-4 font-bold text-white hover:bg-pink-700">Iniciá sesión para reservar <CalendarDays size={19} /></button>
               </div>
             </div>
           </section>
 
-          <section className="bg-rose-100 px-5 py-16 sm:px-8">
-            <div className="mx-auto grid max-w-5xl gap-8 text-center sm:grid-cols-3">
-              {[['24 h', 'Reservas online'], ['100%', 'Agenda organizada'], ['2 min', 'Para sacar un turno']].map(([valor, texto]) => <div key={texto}><p className="text-4xl font-black text-pink-700">{valor}</p><p className="mt-2 font-semibold text-rose-800">{texto}</p></div>)}
+          <footer id="demo-contacto" className="scroll-mt-32 bg-gray-950 text-white">
+            <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 md:grid-cols-3">
+              <div><div className="flex items-center gap-3"><div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white font-black text-pink-600">A</div><div><p className="font-black">Alma Estética</p><p className="mt-1 text-xs text-gray-400">Belleza, bienestar y cuidado</p></div></div><p className="mt-5 max-w-sm text-sm leading-6 text-gray-400">Un espacio pensado para que te cuides, te relajes y disfrutes un momento para vos.</p></div>
+              <div><h3 className="text-sm font-bold uppercase tracking-widest">Contacto</h3><div className="mt-5 space-y-4 text-sm text-gray-300"><p className="flex gap-3"><MapPin className="shrink-0 text-pink-500" size={18} />Av. del Libertador 1250, Buenos Aires</p><p className="flex gap-3"><MessageCircle className="text-pink-500" size={18} />+54 11 5555 1234</p><p className="flex gap-3"><Camera className="text-pink-500" size={18} />@alma.estetica</p></div></div>
+              <div><h3 className="text-sm font-bold uppercase tracking-widest">Horarios de atención</h3><div className="mt-5 space-y-3 text-sm text-gray-300"><p className="flex gap-3"><Clock3 className="text-pink-500" size={18} />Lunes a viernes: 09:00 a 19:00</p><p className="flex gap-3"><Clock3 className="text-pink-500" size={18} />Sábados: 09:00 a 14:00</p></div></div>
             </div>
-          </section>
+            <div className="border-t border-white/10"><div className="mx-auto flex max-w-7xl flex-col gap-2 px-5 py-5 text-center text-xs text-gray-500 sm:flex-row sm:justify-between sm:px-8"><p>© {new Date().getFullYear()} Alma Estética. Todos los derechos reservados.</p><p>Desarrollado por Farixio</p></div></div>
+          </footer>
         </>
       ) : (
         <section className="mx-auto max-w-7xl px-4 py-8 sm:px-8">
