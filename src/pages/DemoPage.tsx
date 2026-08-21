@@ -87,10 +87,19 @@ function ContenidoAdminDemo({ seccion }: { seccion: Exclude<SeccionAdmin, "resum
 }
 
 function DemoPage() {
-  const [vista, setVista] = useState<Vista>("cliente");
-  const [servicioElegido, setServicioElegido] = useState<(typeof servicios)[number] | null>(null);
+  const parametrosIniciales = new URLSearchParams(window.location.search);
+  const vistaInicial: Vista = parametrosIniciales.get("vista") === "admin" ? "admin" : "cliente";
+  const seccionInicial = parametrosIniciales.get("seccion") as SeccionAdmin | null;
+  const [vista, setVista] = useState<Vista>(vistaInicial);
+  const [servicioElegido, setServicioElegido] = useState<(typeof servicios)[number] | null>(
+    parametrosIniciales.get("reserva") === "1" ? servicios[0] : null,
+  );
   const [reservaConfirmada, setReservaConfirmada] = useState(false);
-  const [seccionAdmin, setSeccionAdmin] = useState<SeccionAdmin>("resumen");
+  const [seccionAdmin, setSeccionAdmin] = useState<SeccionAdmin>(
+    seccionesAdmin.some((seccion) => seccion.id === seccionInicial)
+      ? (seccionInicial as SeccionAdmin)
+      : "resumen",
+  );
 
   const cambiarVista = (nuevaVista: Vista) => {
     setVista(nuevaVista);
