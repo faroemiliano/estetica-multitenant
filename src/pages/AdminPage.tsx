@@ -37,7 +37,6 @@ type Cumpleanero = {
 type Acceso = {
   icono: LucideIcon;
   nombre: string;
-  detalle: string;
   ruta: string;
 };
 
@@ -70,12 +69,12 @@ function AdminPage() {
   }, []);
 
   const accesos: Acceso[] = [
-    { icono: CalendarDays, nombre: "Turnos", detalle: "Anotar y gestionar", ruta: `/${slug}/admin/turnos` },
-    { icono: Users, nombre: "Clientes", detalle: "Altas, cambios y consultas", ruta: `/${slug}/admin/clientes` },
-    { icono: Scissors, nombre: "Servicios", detalle: "Tratamientos y precios", ruta: `/${slug}/admin/servicios` },
-    { icono: UserRound, nombre: "Profesionales", detalle: "Equipo de trabajo", ruta: `/${slug}/admin/profesionales` },
-    { icono: Clock3, nombre: "Horarios", detalle: "Días y disponibilidad", ruta: `/${slug}/admin/horarios` },
-    { icono: Settings, nombre: "Configuración", detalle: "Información de la estética", ruta: `/${slug}/admin/config` },
+    { icono: CalendarDays, nombre: "Turnos", ruta: `/${slug}/admin/turnos` },
+    { icono: Users, nombre: "Clientes", ruta: `/${slug}/admin/clientes` },
+    { icono: Scissors, nombre: "Servicios", ruta: `/${slug}/admin/servicios` },
+    { icono: UserRound, nombre: "Profesionales", ruta: `/${slug}/admin/profesionales` },
+    { icono: Clock3, nombre: "Horarios", ruta: `/${slug}/admin/horarios` },
+    { icono: Settings, nombre: "Configuración", ruta: `/${slug}/admin/config` },
   ];
 
   const metricas = stats
@@ -169,32 +168,7 @@ function AdminPage() {
             </div>
           )}
 
-          <section className="mt-6">
-            <div className="mb-4">
-              <h2 className="text-xl font-black text-gray-900">Accesos rápidos</h2>
-              <p className="mt-1 text-sm text-gray-500">Elegí qué necesitás administrar.</p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {accesos.map(({ icono: Icono, nombre, detalle, ruta }) => (
-                <button
-                  key={nombre}
-                  onClick={() => navigate(ruta)}
-                  className="flex items-center gap-4 rounded-2xl border border-stone-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-pink-300 hover:shadow-md"
-                >
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-pink-50 text-pink-700">
-                    <Icono size={21} />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block font-bold text-gray-900">{nombre}</span>
-                    <span className="mt-1 block text-xs text-gray-500">{detalle}</span>
-                  </span>
-                  <span className="ml-auto text-xl text-stone-300">›</span>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="mt-6 overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
+          <section className="mt-8 overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
             <div className="flex items-center justify-between border-b border-stone-200 px-5 py-5 sm:px-6">
               <div>
                 <h2 className="flex items-center gap-2 text-xl font-black text-gray-900">
