@@ -37,6 +37,12 @@ const fechaLocal = (fecha: Date) => {
   return `${anio}-${mes}-${dia}`;
 };
 
+const inicioDelDia = () => {
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  return hoy;
+};
+
 const mensajeError = (error: unknown) => {
   if (axios.isAxiosError(error)) {
     const detalle = error.response?.data?.detail;
@@ -314,7 +320,7 @@ function DashboardPage() {
                     <div>
                       <p className="mb-3 flex items-center gap-2 text-sm font-bold text-gray-800"><span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-900 text-xs text-white">1</span> Elegí una fecha</p>
                       <div className="overflow-hidden rounded-2xl border border-gray-200">
-                        <DatePicker selected={fecha} minDate={new Date()} onChange={seleccionarFecha} inline />
+                        <DatePicker selected={fecha} minDate={inicioDelDia()} onChange={seleccionarFecha} inline />
                       </div>
                     </div>
                     <div>
