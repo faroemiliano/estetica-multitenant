@@ -6,6 +6,7 @@ import {
   crearTurnoAdmin,
   obtenerHorariosDisponibles,
 } from "../../services/turnos";
+import { fechaHoyArgentina } from "../../utils/fechas";
 
 type Props = {
   onCreado: () => void | Promise<void>;
@@ -22,13 +23,6 @@ type Servicio = {
   nombre: string;
   profesional_id?: number;
   profesional?: { id: number };
-};
-
-const fechaLocal = (fecha: Date) => {
-  const anio = fecha.getFullYear();
-  const mes = String(fecha.getMonth() + 1).padStart(2, "0");
-  const dia = String(fecha.getDate()).padStart(2, "0");
-  return `${anio}-${mes}-${dia}`;
 };
 
 const mensajeError = (error: unknown) => {
@@ -179,7 +173,7 @@ function CrearTurnoAdmin({ onCreado }: Props) {
           <input
             required
             type="date"
-            min={fechaLocal(new Date())}
+            min={fechaHoyArgentina()}
             value={fecha}
             onChange={(e) => {
               const nuevaFecha = e.target.value;

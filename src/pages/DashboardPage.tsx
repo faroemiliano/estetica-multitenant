@@ -16,6 +16,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { crearTurno, obtenerHorariosDisponibles } from "../services/turnos";
 import { obtenerServicios } from "../services/servicios";
 import { useEstetica } from "../context/EsteticaContext";
+import { inicioHoyArgentina } from "../utils/fechas";
 
 type Profesional = { id: number; nombre?: string };
 type Servicio = {
@@ -35,12 +36,6 @@ const fechaLocal = (fecha: Date) => {
   const mes = String(fecha.getMonth() + 1).padStart(2, "0");
   const dia = String(fecha.getDate()).padStart(2, "0");
   return `${anio}-${mes}-${dia}`;
-};
-
-const inicioDelDia = () => {
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
-  return hoy;
 };
 
 const mensajeError = (error: unknown) => {
@@ -320,7 +315,7 @@ function DashboardPage() {
                     <div>
                       <p className="mb-3 flex items-center gap-2 text-sm font-bold text-gray-800"><span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-900 text-xs text-white">1</span> Elegí una fecha</p>
                       <div className="overflow-hidden rounded-2xl border border-gray-200">
-                        <DatePicker selected={fecha} minDate={inicioDelDia()} onChange={seleccionarFecha} inline />
+                        <DatePicker selected={fecha} minDate={inicioHoyArgentina()} onChange={seleccionarFecha} inline />
                       </div>
                     </div>
                     <div>

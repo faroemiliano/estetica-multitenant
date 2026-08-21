@@ -8,12 +8,38 @@ import interactionPlugin from "@fullcalendar/interaction";
 
 import { obtenerTurnosAdmin } from "../../services/turnos";
 import AgendaTurnos from "./AgendaTurnos";
+import { fechaHoyArgentina, formatearFechaISO } from "../../utils/fechas";
+
+type TurnoApi = {
+  id: number;
+  hora_inicio: string;
+  hora_fin: string;
+  estado: string;
+  cliente?: { email?: string };
+  servicio?: { nombre?: string; descripcion?: string };
+  profesional?: { nombre?: string };
+};
+
+type EventoCalendario = {
+  id: string;
+  title: string;
+  start: string;
+  end: string;
+  extendedProps: {
+    cliente?: string;
+    estado: string;
+    descripcion?: string;
+    servicio?: string;
+    profesional?: string;
+  };
+  color: string;
+};
 
 function CalendarioTurnos() {
-  const [eventos, setEventos] = useState<any[]>([]);
+  const [eventos, setEventos] = useState<EventoCalendario[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const [turnosDia, setTurnosDia] = useState<any[]>([]);
+  const [turnosDia, setTurnosDia] = useState<EventoCalendario[]>([]);
   const [fechaSeleccionada, setFechaSeleccionada] = useState("");
 
   const [isMobile, setIsMobile] = useState(false);
@@ -28,41 +54,38 @@ function CalendarioTurnos() {
 
   // load data
   useEffect(() => {
-    cargarTurnos();
+    const cargarTurnos = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const data = (await obtenerTurnosAdmin(token)) as TurnoApi[];
+      const eventosFormateados: EventoCalendario[] = data.map((turno) => ({
+        id: String(turno.id),
+        title: turno.servicio?.nombre || "Servicio",
+        start: turno.hora_inicio,
+        end: turno.hora_fin,
+        extendedProps: {
+          cliente: turno.cliente?.email,
+          estado: turno.estado,
+          descripcion: turno.servicio?.descripcion,
+          servicio: turno.servicio?.nombre,
+          profesional: turno.profesional?.nombre,
+        },
+        color:
+          turno.estado === "confirmado"
+            ? "#10b981"
+            : turno.estado === "cancelado"
+              ? "#ef4444"
+              : turno.estado === "finalizado"
+                ? "#6b7280"
+                : "#f59e0b",
+      }));
+
+      setEventos(eventosFormateados);
+    };
+
+    void cargarTurnos();
   }, []);
-
-  const cargarTurnos = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    const data = await obtenerTurnosAdmin(token);
-
-    const eventosFormateados = data.map((turno: any) => ({
-      id: turno.id,
-      title: turno.servicio?.nombre || "Servicio",
-      start: turno.hora_inicio,
-      end: turno.hora_fin,
-
-      extendedProps: {
-        cliente: turno.cliente?.email,
-        estado: turno.estado,
-        descripcion: turno.servicio?.descripcion,
-        servicio: turno.servicio?.nombre,
-        profesional: turno.profesional?.nombre,
-      },
-
-      color:
-        turno.estado === "confirmado"
-          ? "#10b981"
-          : turno.estado === "cancelado"
-            ? "#ef4444"
-            : turno.estado === "finalizado"
-              ? "#6b7280"
-              : "#f59e0b",
-    }));
-
-    setEventos(eventosFormateados);
-  };
 
   // FIX timezone-safe
   const getLocalDate = (date: string | Date) => {
@@ -73,7 +96,7 @@ function CalendarioTurnos() {
     ).padStart(2, "0")}`;
   };
 
-  const hoyStr = getLocalDate(new Date());
+  const hoyStr = fechaHoyArgentina();
 
   return (
     <div className="overflow-hidden rounded-3xl border bg-white shadow-lg">
@@ -96,6 +119,7 @@ function CalendarioTurnos() {
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView="dayGridMonth"
             locale={esLocale}
+            now={hoyStr}
             height="auto"
             contentHeight="auto"
             expandRows
@@ -128,7 +152,7 @@ function CalendarioTurnos() {
               <div>
                 <h2 className="text-lg font-bold">Turnos del día</h2>
                 <p className="text-xs text-gray-500">
-                  {new Date(fechaSeleccionada).toLocaleDateString("es-AR")}
+                  {formatearFechaISO(fechaSeleccionada)}
                 </p>
               </div>
 
