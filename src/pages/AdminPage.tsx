@@ -1,10 +1,12 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { BarChart3, CalendarDays } from "lucide-react";
+import { BarChart3, CalendarDays, Clock3 } from "lucide-react";
 
 import AdminLayout from "../components/layout/AdminLayout";
 import { obtenerStats } from "../services/dashboard";
+import { obtenerTurnosAdmin } from "../services/turnos";
+import { fechaHoyArgentina, formatearFechaISO } from "../utils/fechas";
 
 const api = import.meta.env.VITE_API_URL;
 
@@ -22,11 +24,21 @@ type Cumpleanero = {
   telefono?: string;
 };
 
+type TurnoResumen = {
+  id: number;
+  hora_inicio: string;
+  estado: string;
+  cliente?: { email?: string; nombre?: string };
+  servicio?: { nombre?: string };
+  profesional?: { nombre?: string };
+};
+
 function AdminPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [stats, setStats] = useState<Estadisticas | null>(null);
   const [cumpleaneros, setCumpleaneros] = useState<Cumpleanero[]>([]);
+  const [turnos, setTurnos] = useState<TurnoResumen[]>([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -38,14 +50,16 @@ function AdminPage() {
       axios.get(`${api}/clientes/cumpleanios`, {
         headers: { Authorization: `Bearer ${token}` },
       }),
+      obtenerTurnosAdmin(token),
     ])
-      .then(([estadisticas, respuestaCumpleanios]) => {
+      .then(([estadisticas, respuestaCumpleanios, listaTurnos]) => {
         setStats(estadisticas);
         setCumpleaneros(
           Array.isArray(respuestaCumpleanios.data)
             ? respuestaCumpleanios.data
             : [],
         );
+        setTurnos(Array.isArray(listaTurnos) ? listaTurnos : []);
       })
       .catch(() => setError("No pudimos cargar el resumen del panel."));
   }, []);
@@ -58,6 +72,30 @@ function AdminPage() {
         { nombre: "Finalizados", valor: stats.finalizados, estilo: "border-stone-300" },
       ]
     : [];
+
+  const hoy = fechaHoyArgentina();
+  const turnosOrdenados = [...turnos].sort((a, b) =>
+    a.hora_inicio.localeCompare(b.hora_inicio),
+  );
+  const turnosHoy = turnosOrdenados.filter(
+    (turno) => turno.hora_inicio.slice(0, 10) === hoy,
+  );
+  const proximosTurnos = turnosOrdenados
+    .filter(
+      (turno) =>
+        turno.hora_inicio.slice(0, 10) > hoy && turno.estado !== "cancelado",
+    )
+    .slice(0, 6);
+
+  const estiloEstado = (estado: string) => {
+    if (estado === "confirmado") return "bg-emerald-50 text-emerald-700";
+    if (estado === "cancelado") return "bg-red-50 text-red-700";
+    if (estado === "finalizado") return "bg-stone-100 text-stone-600";
+    return "bg-amber-50 text-amber-700";
+  };
+
+  const nombreCliente = (turno: TurnoResumen) =>
+    turno.cliente?.nombre || turno.cliente?.email || "Cliente";
 
   return (
     <AdminLayout>
@@ -106,6 +144,78 @@ function AdminPage() {
           ))}
         </div>
       )}
+
+      <div className="mt-6 grid gap-6 xl:grid-cols-2">
+        <section className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
+          <div className="border-b border-stone-200 px-5 py-5 sm:px-6">
+            <h2 className="flex items-center gap-2 text-xl font-black text-gray-900">
+              <CalendarDays className="text-pink-600" size={21} /> Turnos de hoy
+            </h2>
+            <p className="mt-1 text-sm text-gray-500">
+              {turnosHoy.length} {turnosHoy.length === 1 ? "reserva programada" : "reservas programadas"}
+            </p>
+          </div>
+          {turnosHoy.length ? (
+            <div className="divide-y divide-stone-100">
+              {turnosHoy.map((turno) => (
+                <div key={turno.id} className="grid grid-cols-[60px_1fr_auto] items-center gap-3 px-5 py-4 sm:px-6">
+                  <strong className="text-pink-700">{turno.hora_inicio.slice(11, 16)}</strong>
+                  <div className="min-w-0">
+                    <p className="truncate font-bold text-gray-900">{nombreCliente(turno)}</p>
+                    <p className="mt-1 truncate text-xs text-gray-500">
+                      {turno.servicio?.nombre || "Servicio"}
+                      {turno.profesional?.nombre ? ` · ${turno.profesional.nombre}` : ""}
+                    </p>
+                  </div>
+                  <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold capitalize ${estiloEstado(turno.estado)}`}>
+                    {turno.estado}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="px-6 py-12 text-center">
+              <CalendarDays className="mx-auto text-stone-300" size={34} />
+              <p className="mt-3 text-sm font-semibold text-gray-500">No hay turnos programados para hoy.</p>
+            </div>
+          )}
+        </section>
+
+        <section className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
+          <div className="border-b border-stone-200 px-5 py-5 sm:px-6">
+            <h2 className="flex items-center gap-2 text-xl font-black text-gray-900">
+              <Clock3 className="text-pink-600" size={21} /> Próximos turnos
+            </h2>
+            <p className="mt-1 text-sm text-gray-500">Las siguientes reservas de la agenda.</p>
+          </div>
+          {proximosTurnos.length ? (
+            <div className="divide-y divide-stone-100">
+              {proximosTurnos.map((turno) => (
+                <div key={turno.id} className="grid grid-cols-[76px_1fr_auto] items-center gap-3 px-5 py-4 sm:px-6">
+                  <div>
+                    <strong className="block text-sm text-pink-700">
+                      {formatearFechaISO(turno.hora_inicio).slice(0, 5)}
+                    </strong>
+                    <span className="text-xs text-gray-400">{turno.hora_inicio.slice(11, 16)}</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate font-bold text-gray-900">{nombreCliente(turno)}</p>
+                    <p className="mt-1 truncate text-xs text-gray-500">{turno.servicio?.nombre || "Servicio"}</p>
+                  </div>
+                  <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold capitalize ${estiloEstado(turno.estado)}`}>
+                    {turno.estado}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="px-6 py-12 text-center">
+              <Clock3 className="mx-auto text-stone-300" size={34} />
+              <p className="mt-3 text-sm font-semibold text-gray-500">No hay próximos turnos cargados.</p>
+            </div>
+          )}
+        </section>
+      </div>
 
       <section className="mt-6 rounded-3xl bg-pink-900 p-6 text-white sm:p-8">
         <h2 className="text-xl font-black">Todo en un solo lugar</h2>
