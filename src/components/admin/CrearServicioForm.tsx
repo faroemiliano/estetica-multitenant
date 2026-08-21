@@ -2,9 +2,12 @@ import { useState, useEffect } from "react";
 
 import axios from "axios";
 
-function CrearServicioForm({ recargarServicios }: any) {
+type Profesional = { id: number; nombre: string };
+type Props = { recargarServicios: () => void | Promise<void> };
+
+function CrearServicioForm({ recargarServicios }: Props) {
   const api = import.meta.env.VITE_API_URL;
-  const [profesionales, setProfesionales] = useState([]);
+  const [profesionales, setProfesionales] = useState<Profesional[]>([]);
 
   const [form, setForm] = useState({
     nombre: "",
@@ -53,28 +56,23 @@ function CrearServicioForm({ recargarServicios }: any) {
     }
   };
   useEffect(() => {
-    obtenerProfesionales();
-  }, []);
-
-  const obtenerProfesionales = async () => {
-    try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(`${api}/profesionales`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      setProfesionales(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+    const obtenerProfesionales = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get(`${api}/profesionales`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setProfesionales(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    void obtenerProfesionales();
+  }, [api]);
   return (
-    <div className="overflow-hidden rounded-[32px] border border-white/60 bg-white/90 shadow-[0_10px_40px_rgba(0,0,0,0.06)] backdrop-blur">
+    <div className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
       {/* HEADER */}
-      <div className="border-b border-gray-100 bg-gradient-to-r from-pink-500 to-rose-500 px-8 py-7 text-white">
+      <div className="border-b border-white/10 bg-pink-900 px-8 py-7 text-white">
         <h2 className="text-3xl font-bold">Crear servicio</h2>
 
         <p className="mt-2 text-sm text-white/80">
@@ -101,7 +99,7 @@ function CrearServicioForm({ recargarServicios }: any) {
           >
             <option value="">Seleccionar profesional</option>
 
-            {profesionales.map((p: any) => (
+            {profesionales.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.nombre}
               </option>
@@ -247,7 +245,7 @@ function CrearServicioForm({ recargarServicios }: any) {
         {/* BUTTON */}
         <button
           onClick={crearServicio}
-          className="mt-2 w-full rounded-2xl bg-gradient-to-r from-pink-500 to-rose-500 py-4 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl"
+          className="mt-2 w-full rounded-xl bg-pink-600 py-4 text-sm font-bold text-white shadow-sm hover:bg-pink-700"
         >
           Crear servicio
         </button>

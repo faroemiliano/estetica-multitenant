@@ -16,24 +16,19 @@ function CrearHorariosEsteticas() {
     { inicio: "08:00", fin: "14:00" },
   ]);
   useEffect(() => {
-    cargarHorarios();
+    const cargarHorarios = async () => {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${api}/estetica/horarios`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setHorarios(
+        response.data.horarios?.length
+          ? response.data.horarios
+          : [{ inicio: "08:00", fin: "14:00" }],
+      );
+    };
+    void cargarHorarios();
   }, []);
-
-  const cargarHorarios = async () => {
-    const token = localStorage.getItem("token");
-
-    const response = await axios.get(`${api}/estetica/horarios`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    setHorarios(
-      response.data.horarios?.length
-        ? response.data.horarios
-        : [{ inicio: "08:00", fin: "14:00" }],
-    );
-  };
 
   const agregarBloque = () => {
     setHorarios([...horarios, { inicio: "", fin: "" }]);
@@ -80,12 +75,12 @@ function CrearHorariosEsteticas() {
         <AdminSectionHeader eyebrow="Disponibilidad" title="Horarios de atención" description="Configurá los bloques generales en los que la estética recibe turnos." icon={<Clock3 size={17} />} />
 
         {/* CARD */}
-        <div className="rounded-3xl border border-gray-100 bg-white p-5 shadow-[0_20px_60px_rgba(0,0,0,0.06)] md:p-8">
+        <div className="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm md:p-8">
           <div className="space-y-4">
             {horarios.map((h, index) => (
               <div
                 key={index}
-                className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-pink-50/40 p-4 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-4 sm:flex-row sm:items-center sm:justify-between"
               >
                 {/* INPUTS */}
                 <div className="flex flex-1 items-center gap-3">
@@ -139,14 +134,14 @@ function CrearHorariosEsteticas() {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-between">
             <button
               onClick={agregarBloque}
-              className="rounded-2xl border border-pink-200 bg-white px-5 py-3 text-sm font-semibold text-pink-500 shadow-sm transition hover:bg-pink-50"
+              className="rounded-xl border border-stone-200 bg-white px-5 py-3 text-sm font-bold text-gray-700 shadow-sm transition hover:border-pink-200 hover:bg-pink-50"
             >
               + Agregar bloque
             </button>
 
             <button
               onClick={guardar}
-              className="rounded-2xl bg-pink-500 px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:scale-[1.03] hover:bg-pink-600"
+              className="rounded-xl bg-pink-600 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-pink-700"
             >
               Guardar horarios
             </button>

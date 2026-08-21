@@ -256,7 +256,7 @@ function ClientesAdminPage() {
                   {/* NOMBRE */}
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-black text-sm font-bold text-white">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-pink-50 text-sm font-bold text-pink-700">
                         {cliente.nombre_completo?.charAt(0)?.toUpperCase()}
                       </div>
 
@@ -309,7 +309,7 @@ function ClientesAdminPage() {
               >
                 {/* TOP */}
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-black text-white">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-50 font-bold text-pink-700">
                     {cliente.nombre_completo?.charAt(0)?.toUpperCase()}
                   </div>
 

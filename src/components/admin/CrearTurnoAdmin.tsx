@@ -117,7 +117,7 @@ function CrearTurnoAdmin({ onCreado }: Props) {
   return (
     <form
       onSubmit={guardar}
-      className="rounded-3xl border border-pink-100 bg-pink-50/50 p-5"
+      className="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm"
     >
       <div className="mb-5">
         <h3 className="text-xl font-bold text-gray-900">Anotar un turno</h3>
@@ -226,7 +226,7 @@ function CrearTurnoAdmin({ onCreado }: Props) {
       <button
         type="submit"
         disabled={!puedeGuardar}
-        className="mt-5 rounded-xl bg-black px-5 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40"
+        className="mt-5 rounded-xl bg-pink-600 px-5 py-3 text-sm font-bold text-white hover:bg-pink-700 disabled:cursor-not-allowed disabled:opacity-40"
       >
         {guardando ? "Guardando..." : "Anotar turno"}
       </button>

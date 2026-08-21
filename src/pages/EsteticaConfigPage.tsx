@@ -32,7 +32,7 @@ function ConfigEsteticaPage() {
 
   const guardar = async () => {
     const payload = Object.fromEntries(
-      Object.entries(form).filter(([_, value]) => value !== ""),
+      Object.entries(form).filter(([, value]) => value !== ""),
     );
 
     console.log("SLUG:", slug);
@@ -76,7 +76,7 @@ function ConfigEsteticaPage() {
         <AdminSectionHeader eyebrow="Ajustes" title="Configuración" description="Personalizá la imagen pública, los datos de contacto y la ubicación de la estética." icon={<Settings size={17} />} />
 
         {/* CARD */}
-        <div className="rounded-[36px]  border border-pink-100 bg-white p-8 shadow-[0_20px_60px_rgba(236,72,153,0.10)]">
+        <div className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
           <div className="grid gap-5">
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-700">
@@ -88,7 +88,7 @@ function ConfigEsteticaPage() {
                 placeholder="https://..."
                 value={form.logo_url}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-pink-200 px-4 py-3 outline-none transition focus:border-pink-500"
+                className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 outline-none transition focus:border-pink-500 focus:bg-white"
               />
             </div>
 
@@ -102,7 +102,7 @@ function ConfigEsteticaPage() {
                 placeholder="https://..."
                 value={form.hero_image}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-pink-200 px-4 py-3 outline-none transition focus:border-pink-500"
+                className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 outline-none transition focus:border-pink-500 focus:bg-white"
               />
             </div>
 
@@ -116,7 +116,7 @@ function ConfigEsteticaPage() {
                 placeholder="5491122334455"
                 value={form.whatsapp}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-pink-200 px-4 py-3 outline-none transition focus:border-pink-500"
+                className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 outline-none transition focus:border-pink-500 focus:bg-white"
               />
             </div>
 
@@ -130,7 +130,7 @@ function ConfigEsteticaPage() {
                 placeholder="https://instagram.com/..."
                 value={form.instagram_url}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-pink-200 px-4 py-3 outline-none transition focus:border-pink-500"
+                className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 outline-none transition focus:border-pink-500 focus:bg-white"
               />
             </div>
 
@@ -144,7 +144,7 @@ function ConfigEsteticaPage() {
                 placeholder="Av. Siempre Viva 123"
                 value={form.direccion}
                 onChange={handleChange}
-                className="w-full rounded-2xl border border-pink-200 px-4 py-3 outline-none transition focus:border-pink-500"
+                className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 outline-none transition focus:border-pink-500 focus:bg-white"
               />
             </div>
 
@@ -158,7 +158,7 @@ function ConfigEsteticaPage() {
                 value={form.horarios}
                 onChange={handleChange}
                 rows={5}
-                className="w-full rounded-2xl border border-pink-200 p-3"
+                className="w-full rounded-xl border border-stone-200 bg-stone-50 p-3 outline-none focus:border-pink-500 focus:bg-white"
               />
             </div>
 
@@ -175,7 +175,7 @@ function ConfigEsteticaPage() {
 
             <button
               onClick={guardar}
-              className="mt-4 rounded-2xl bg-gradient-to-r from-pink-500 to-fuchsia-500 py-4 font-bold text-white shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_20px_50px_rgba(236,72,153,0.35)]"
+              className="mt-4 rounded-xl bg-pink-600 py-4 font-bold text-white shadow-sm hover:bg-pink-700"
             >
               Guardar configuración
             </button>

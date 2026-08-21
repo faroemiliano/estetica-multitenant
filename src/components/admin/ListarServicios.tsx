@@ -216,7 +216,7 @@ function ListaServicios({
                     {servicio.nombre}
                   </h3>
 
-                  <p className="mt-1 text-sm font-semibold text-fuchsia-600">
+                  <p className="mt-1 text-sm font-semibold text-pink-700">
                     {servicio.categoria}
                   </p>
 

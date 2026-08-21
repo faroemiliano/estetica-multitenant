@@ -160,18 +160,18 @@ function AdminCrearProfesional() {
       <div className="mx-auto max-w-5xl">
         <AdminSectionHeader eyebrow="Equipo" title="Profesionales" description="Administrá integrantes, nombres y disponibilidad semanal del equipo." icon={<UserRound size={17} />} />
 
-        <div className="mb-10 rounded-[32px] border border-pink-100 bg-white p-6 shadow-lg">
+        <div className="mb-6 rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-3 md:flex-row">
             <input
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               placeholder="Nombre"
-              className="flex-1 rounded-2xl border border-pink-200 p-4 focus:border-pink-400 focus:outline-none"
+              className="flex-1 rounded-xl border border-stone-200 bg-stone-50 p-4 focus:border-pink-400 focus:bg-white focus:outline-none"
             />
 
             <button
               onClick={crearProfesional}
-              className="rounded-2xl bg-gradient-to-r from-pink-500 to-fuchsia-500 px-8 py-4 font-bold text-white shadow-lg"
+              className="rounded-xl bg-pink-600 px-8 py-4 font-bold text-white shadow-sm hover:bg-pink-700"
             >
               Crear
             </button>
@@ -182,7 +182,7 @@ function AdminCrearProfesional() {
           {profesionales.map((profesional: any) => (
             <div
               key={profesional.id}
-              className="rounded-[28px] border border-pink-100 bg-white p-6 shadow-sm transition hover:shadow-xl"
+              className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm transition hover:border-pink-200 hover:shadow-md"
             >
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 {profesionalEditando === profesional.id ? (
@@ -230,7 +230,7 @@ function AdminCrearProfesional() {
               </div>
 
               {profesionalEditando === profesional.id && (
-                <div className="mt-6 rounded-[28px] border border-pink-100 bg-pink-50/40 p-6">
+                <div className="mt-6 rounded-2xl border border-stone-200 bg-stone-50 p-6">
                   <div className="mb-6">
                     <label className="mb-2 block font-medium">
                       Nombre del profesional
@@ -245,7 +245,7 @@ function AdminCrearProfesional() {
                       />
                       <button
                         onClick={() => guardarNombre(profesional.id)}
-                        className="w-full rounded-lg bg-blue-500 px-4 py-3 text-white sm:w-auto"
+                        className="w-full rounded-xl bg-pink-600 px-4 py-3 font-bold text-white hover:bg-pink-700 sm:w-auto"
                       >
                         Guardar nombre
                       </button>
@@ -336,7 +336,7 @@ function AdminCrearProfesional() {
 
                   <button
                     onClick={() => guardarDisponibilidad(profesional.id)}
-                    className="mt-6 w-full rounded-2xl bg-gradient-to-r from-pink-500 to-fuchsia-500 py-4 font-bold text-white shadow-lg transition hover:scale-[1.01]"
+                    className="mt-6 w-full rounded-xl bg-pink-600 py-4 font-bold text-white shadow-sm hover:bg-pink-700"
                   >
                     Guardar disponibilidad
                   </button>

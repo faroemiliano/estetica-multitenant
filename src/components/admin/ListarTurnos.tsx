@@ -116,7 +116,7 @@ function ListaTurnos() {
 
         {/* EMPTY */}
         {turnosFiltrados.length === 0 ? (
-          <div className="flex min-h-[320px] flex-col items-center justify-center rounded-[36px] border border-dashed border-gray-300 bg-white px-8 py-16 text-center shadow-sm">
+          <div className="flex min-h-[320px] flex-col items-center justify-center rounded-3xl border border-dashed border-stone-300 bg-white px-8 py-16 text-center shadow-sm">
             <h3 className="text-2xl font-bold text-gray-800">
               No encontramos turnos
             </h3>
@@ -126,7 +126,7 @@ function ListaTurnos() {
             </p>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-[36px] border border-gray-200 bg-white shadow-[0_20px_60px_rgba(0,0,0,0.05)]">
+          <div className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
             {/* TABLE HEADER */}
             <div className="hidden grid-cols-[1.2fr_1fr_0.8fr_0.8fr_1.3fr] border-b border-gray-100 bg-gray-50 px-8 py-5 text-xs font-semibold uppercase tracking-[0.15em] text-gray-400 lg:grid">
               <span>Cliente</span>
@@ -148,7 +148,7 @@ function ListaTurnos() {
                     {/* CLIENTE */}
                     <div className="min-w-0">
                       <div className="flex items-center gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-sm font-bold text-white">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pink-50 text-sm font-bold text-pink-700">
                           {turno.cliente?.email?.charAt(0)?.toUpperCase()}
                         </div>
 
@@ -186,7 +186,7 @@ function ListaTurnos() {
 
                     {/* HORA */}
                     <div>
-                      <div className="rounded-2xl bg-black px-4 py-3 text-center font-semibold text-white">
+                      <div className="rounded-2xl bg-pink-900 px-4 py-3 text-center font-semibold text-white">
                         {new Date(turno.hora_inicio).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -257,7 +257,7 @@ function ListaTurnos() {
                         </h4>
                       </div>
 
-                      <div className="rounded-2xl bg-black p-4 text-center">
+                      <div className="rounded-2xl bg-pink-900 p-4 text-center">
                         <p className="text-xs uppercase tracking-wide text-white/60">
                           Hora
                         </p>
