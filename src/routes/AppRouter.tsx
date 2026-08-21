@@ -19,11 +19,13 @@ import CrearHorariosEsteticas from "../components/admin/CrearHorariosEstetica";
 import HistorialTurnosPage from "../pages/HistorialTurnosPage";
 import EsteticaLayout from "../components/layout/EsteticaLayout";
 import ServiciosAdminPage from "../pages/ServiciosAdminPage";
+import DemoPage from "../pages/DemoPage";
 
 function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/demo" element={<DemoPage />} />
         <Route element={<EsteticaLayout />}>
           <Route path="/:slug" element={<LandingPage />} />
           <Route path="/:slug/dashboard" element={<DashboardPage />} />
