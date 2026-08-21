@@ -103,6 +103,28 @@ img {
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
   font-family: inherit !important;
+  width: 100% !important;
+}
+
+.react-datepicker__month-container {
+  width: 100% !important;
+}
+
+.react-datepicker__month {
+  margin: 0.75rem !important;
+}
+
+.react-datepicker__day-names,
+.react-datepicker__week {
+  display: grid !important;
+  grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+}
+
+.react-datepicker__day-name,
+.react-datepicker__day {
+  width: auto !important;
+  margin: 0.15rem !important;
+  line-height: 2.25rem !important;
 }
 
 .react-datepicker__header {

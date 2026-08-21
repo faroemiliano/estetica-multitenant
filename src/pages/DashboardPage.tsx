@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import DatePicker from "react-datepicker";
+import { es } from "date-fns/locale";
 import {
   ArrowLeft,
   CalendarDays,
@@ -315,7 +316,14 @@ function DashboardPage() {
                     <div>
                       <p className="mb-3 flex items-center gap-2 text-sm font-bold text-gray-800"><span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-900 text-xs text-white">1</span> Elegí una fecha</p>
                       <div className="overflow-hidden rounded-2xl border border-gray-200">
-                        <DatePicker selected={fecha} minDate={inicioHoyArgentina()} onChange={seleccionarFecha} inline />
+                        <DatePicker
+                          selected={fecha}
+                          minDate={inicioHoyArgentina()}
+                          onChange={seleccionarFecha}
+                          locale={es}
+                          calendarStartDay={1}
+                          inline
+                        />
                       </div>
                     </div>
                     <div>
