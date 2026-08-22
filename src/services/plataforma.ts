@@ -22,6 +22,17 @@ export type EsteticaCreada = {
   admin_email: string;
 };
 
+export type EsteticaPlataforma = {
+  id: number;
+  nombre: string;
+  slug: string;
+  activo: boolean;
+  logo_url?: string | null;
+  direccion?: string | null;
+  admin_email?: string | null;
+  created_at?: string | null;
+};
+
 export async function crearEstetica(
   provisioningKey: string,
   body: CrearEsteticaBody,
@@ -29,6 +40,26 @@ export async function crearEstetica(
   const response = await axios.post<EsteticaCreada>(
     `${api}/admin/esteticas/provision`,
     body,
+    { headers: { "X-Provisioning-Key": provisioningKey } },
+  );
+  return response.data;
+}
+
+export async function obtenerEsteticas(provisioningKey: string) {
+  const response = await axios.get<EsteticaPlataforma[]>(`${api}/admin/esteticas`, {
+    headers: { "X-Provisioning-Key": provisioningKey },
+  });
+  return response.data;
+}
+
+export async function cambiarEstadoEstetica(
+  provisioningKey: string,
+  esteticaId: number,
+  activo: boolean,
+) {
+  const response = await axios.patch(
+    `${api}/admin/esteticas/${esteticaId}/estado`,
+    { activo },
     { headers: { "X-Provisioning-Key": provisioningKey } },
   );
   return response.data;

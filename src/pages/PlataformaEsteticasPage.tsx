@@ -5,17 +5,23 @@ import {
   Building2,
   CheckCircle2,
   ExternalLink,
+  Eye,
   KeyRound,
   Link2,
   Mail,
   Palette,
+  Power,
+  RefreshCw,
   Sparkles,
   UserRound,
 } from "lucide-react";
 import {
   crearEstetica,
+  cambiarEstadoEstetica,
+  obtenerEsteticas,
   type CrearEsteticaBody,
   type EsteticaCreada,
+  type EsteticaPlataforma,
 } from "../services/plataforma";
 
 const inicial: CrearEsteticaBody = {
@@ -56,6 +62,10 @@ function PlataformaEsteticasPage() {
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
   const [resultado, setResultado] = useState<EsteticaCreada | null>(null);
+  const [esteticas, setEsteticas] = useState<EsteticaPlataforma[]>([]);
+  const [cargandoLista, setCargandoLista] = useState(false);
+  const [cambiandoId, setCambiandoId] = useState<number | null>(null);
+  const [listaCargada, setListaCargada] = useState(false);
 
   const urlEstetica = useMemo(
     () => `${window.location.origin}/${resultado?.slug || form.slug}`,
@@ -94,10 +104,41 @@ function PlataformaEsteticasPage() {
       body.slug = normalizarSlug(form.slug);
       body.admin_email = form.admin_email.trim().toLowerCase();
       setResultado(await crearEstetica(clave.trim(), body));
+      await cargarEsteticas();
     } catch (err) {
       setError(detalleError(err));
     } finally {
       setGuardando(false);
+    }
+  };
+
+  const cargarEsteticas = async () => {
+    setError("");
+    if (!clave.trim()) {
+      setError("Ingresá la clave de plataforma para consultar las estéticas.");
+      return;
+    }
+    setCargandoLista(true);
+    try {
+      setEsteticas(await obtenerEsteticas(clave.trim()));
+      setListaCargada(true);
+    } catch (err) {
+      setError(detalleError(err));
+    } finally {
+      setCargandoLista(false);
+    }
+  };
+
+  const alternarEstado = async (estetica: EsteticaPlataforma) => {
+    setError("");
+    setCambiandoId(estetica.id);
+    try {
+      await cambiarEstadoEstetica(clave.trim(), estetica.id, !estetica.activo);
+      setEsteticas((actuales) => actuales.map((item) => item.id === estetica.id ? { ...item, activo: !item.activo } : item));
+    } catch (err) {
+      setError(detalleError(err));
+    } finally {
+      setCambiandoId(null);
     }
   };
 
@@ -128,6 +169,16 @@ function PlataformaEsteticasPage() {
       </header>
 
       <section className="mx-auto max-w-7xl px-5 py-10 sm:px-8 sm:py-14">
+        <section className="mb-12 rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div><p className="text-sm font-bold uppercase tracking-[0.18em] text-pink-600">Tus cuentas</p><h1 className="mt-2 text-3xl font-black">Estéticas de la plataforma</h1><p className="mt-2 text-gray-500">Consultá los espacios creados y controlá cuáles pueden utilizar el sistema.</p></div>
+            <div className="flex w-full flex-col gap-3 sm:flex-row lg:max-w-xl"><label className="min-w-0 flex-1"><span className="mb-2 block text-xs font-bold text-gray-500">Clave de plataforma</span><input type="password" autoComplete="off" value={clave} onChange={(e) => setClave(e.target.value)} placeholder="PROVISIONING_KEY" className="w-full rounded-xl border border-stone-200 px-4 py-3 outline-none focus:border-pink-500" /></label><button type="button" onClick={cargarEsteticas} disabled={cargandoLista} className="mt-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-5 py-3 font-bold text-white disabled:opacity-60"><RefreshCw size={17} className={cargandoLista ? "animate-spin" : ""} />{cargandoLista ? "Cargando" : "Ver estéticas"}</button></div>
+          </div>
+          {listaCargada && <div className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-3">{esteticas.map((estetica) => <article key={estetica.id} className={`rounded-2xl border p-5 ${estetica.activo ? "border-stone-200 bg-white" : "border-stone-200 bg-stone-50 opacity-75"}`}><div className="flex items-start justify-between gap-3"><div className="flex min-w-0 items-center gap-3"><span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl font-black ${estetica.activo ? "bg-pink-50 text-pink-700" : "bg-stone-200 text-stone-500"}`}>{estetica.nombre.charAt(0)}</span><div className="min-w-0"><h2 className="truncate font-black">{estetica.nombre}</h2><p className="truncate text-xs text-gray-400">/{estetica.slug}</p></div></div><span className={`rounded-full px-3 py-1 text-xs font-bold ${estetica.activo ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>{estetica.activo ? "Activa" : "Desactivada"}</span></div><div className="mt-4 space-y-1 text-sm text-gray-500"><p className="truncate">Admin: {estetica.admin_email || "Sin asignar"}</p><p className="truncate">{estetica.direccion || "Sin dirección cargada"}</p></div><div className="mt-5 flex gap-2"><a href={`/${estetica.slug}`} target="_blank" rel="noreferrer" className={`inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-stone-200 px-3 py-2.5 text-sm font-bold ${!estetica.activo ? "pointer-events-none" : "hover:bg-stone-50"}`}><Eye size={16} /> Abrir</a><button type="button" disabled={cambiandoId === estetica.id} onClick={() => alternarEstado(estetica)} className={`inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-bold text-white disabled:opacity-50 ${estetica.activo ? "bg-red-600 hover:bg-red-700" : "bg-emerald-600 hover:bg-emerald-700"}`}><Power size={16} />{cambiandoId === estetica.id ? "Guardando" : estetica.activo ? "Desactivar" : "Activar"}</button></div></article>)}</div>}
+          {listaCargada && esteticas.length === 0 && <p className="mt-7 rounded-2xl bg-stone-50 p-6 text-center text-gray-500">Todavía no hay estéticas creadas.</p>}
+          {error && <p className="mt-5 rounded-xl bg-red-100 px-4 py-3 text-sm font-bold text-red-700">{error}</p>}
+        </section>
+
         <div className="max-w-3xl">
           <p className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.18em] text-pink-600">
             <Building2 size={17} /> Nueva cuenta
@@ -196,7 +247,6 @@ function PlataformaEsteticasPage() {
               <section className="rounded-3xl border border-pink-200 bg-pink-50 p-6">
                 <label><span className="mb-2 flex items-center gap-2 text-sm font-black text-pink-900"><KeyRound size={17} /> Clave de plataforma *</span><input required type="password" autoComplete="off" value={clave} onChange={(e) => setClave(e.target.value)} placeholder="PROVISIONING_KEY" className="w-full rounded-xl border border-pink-200 bg-white px-4 py-3 outline-none focus:border-pink-500" /></label>
                 <p className="mt-3 text-xs leading-5 text-pink-800/70">La clave se envía una sola vez al backend y no queda guardada en el navegador.</p>
-                {error && <p className="mt-4 rounded-xl bg-red-100 px-4 py-3 text-sm font-bold text-red-700">{error}</p>}
                 <button disabled={guardando} className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-pink-600 px-5 py-4 font-black text-white hover:bg-pink-700 disabled:cursor-wait disabled:opacity-60">
                   {guardando ? "Creando..." : "Crear estética"} <ArrowRight size={19} />
                 </button>
