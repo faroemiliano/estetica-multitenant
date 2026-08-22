@@ -7,6 +7,8 @@ type User = {
   email: string;
   nombre?: string;
   perfil_completo?: boolean;
+  estetica_id?: number;
+  slug?: string;
 };
 
 type AuthContextType = {

@@ -47,9 +47,11 @@ export function EsteticaProvider({ children }: any) {
   const [loading, setLoading] = useState(true);
 
   const { slug } = useParams();
-  console.log("ESTETICA CONTEXT SLUG:", slug);
   const load = async () => {
-    if (!slug) return;
+    if (!slug) {
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
 
@@ -71,7 +73,7 @@ export function EsteticaProvider({ children }: any) {
       value={{
         estetica,
         loading,
-        refresh: load, // 🔥 esto es lo nuevo
+        refresh: load,
       }}
     >
       {children}

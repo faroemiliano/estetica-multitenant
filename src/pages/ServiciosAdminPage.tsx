@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { ReceiptText } from "lucide-react";
 import AdminLayout from "../components/layout/AdminLayout";
@@ -6,6 +5,7 @@ import AdminSectionHeader from "../components/admin/AdminSectionHeader";
 import CrearServicioForm from "../components/admin/CrearServicioForm";
 import ListaServicios from "../components/admin/ListarServicios";
 import { obtenerServicios } from "../services/servicios";
+import { obtenerProfesionales } from "../services/profesionales";
 
 type Profesional = { id: number; nombre: string };
 type Servicio = {
@@ -35,12 +35,10 @@ function ServiciosAdminPage() {
     if (!token) return;
     Promise.all([
       obtenerServicios(token),
-      axios.get(`${import.meta.env.VITE_API_URL}/profesionales`, {
-        headers: { Authorization: `Bearer ${token}` },
-      }),
-    ]).then(([listaServicios, response]) => {
+      obtenerProfesionales(token),
+    ]).then(([listaServicios, listaProfesionales]) => {
       setServicios(listaServicios);
-      setProfesionales(response.data);
+      setProfesionales(listaProfesionales);
     });
   }, []);
 

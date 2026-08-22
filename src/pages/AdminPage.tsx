@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { BarChart3, CalendarDays, Clock3 } from "lucide-react";
@@ -7,8 +6,7 @@ import AdminLayout from "../components/layout/AdminLayout";
 import { obtenerStats } from "../services/dashboard";
 import { obtenerTurnosAdmin } from "../services/turnos";
 import { fechaHoyArgentina, formatearFechaISO } from "../utils/fechas";
-
-const api = import.meta.env.VITE_API_URL;
+import { obtenerCumpleanios } from "../services/clientes";
 
 type Estadisticas = {
   turnos_hoy: number;
@@ -47,16 +45,14 @@ function AdminPage() {
 
     Promise.all([
       obtenerStats(token),
-      axios.get(`${api}/clientes/cumpleanios`, {
-        headers: { Authorization: `Bearer ${token}` },
-      }),
+      obtenerCumpleanios(token),
       obtenerTurnosAdmin(token),
     ])
-      .then(([estadisticas, respuestaCumpleanios, listaTurnos]) => {
+      .then(([estadisticas, listaCumpleanios, listaTurnos]) => {
         setStats(estadisticas);
         setCumpleaneros(
-          Array.isArray(respuestaCumpleanios.data)
-            ? respuestaCumpleanios.data
+          Array.isArray(listaCumpleanios)
+            ? listaCumpleanios
             : [],
         );
         setTurnos(Array.isArray(listaTurnos) ? listaTurnos : []);

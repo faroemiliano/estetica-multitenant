@@ -33,6 +33,21 @@ function LayoutContent() {
   const rutaInicio = `/${slug}`;
   const estaCompletandoPerfil = location.pathname === rutaPerfil;
   const estaEnInicio = location.pathname === rutaInicio || location.pathname === `${rutaInicio}/`;
+  const esRutaAdmin = location.pathname.startsWith(`/${slug}/admin`);
+  const esRutaProtegida = !estaEnInicio;
+  const sesionDeOtraEstetica = Boolean(token && user?.slug && user.slug !== slug);
+
+  if (esRutaProtegida && (!token || sesionDeOtraEstetica)) {
+    return <Navigate to={rutaInicio} replace />;
+  }
+
+  if (esRutaAdmin && user?.role !== "admin") {
+    return <Navigate to={`/${slug}/dashboard`} replace />;
+  }
+
+  if (!esRutaAdmin && user?.role === "admin" && !estaEnInicio) {
+    return <Navigate to={`/${slug}/admin`} replace />;
+  }
 
   if (
     token &&
@@ -42,10 +57,6 @@ function LayoutContent() {
     !estaEnInicio
   ) {
     return <Navigate to={rutaPerfil} replace />;
-  }
-
-  if (!token && estaCompletandoPerfil) {
-    return <Navigate to={`/${slug}`} replace />;
   }
 
   if (

@@ -31,6 +31,13 @@ export const obtenerClientes = async (token: string) => {
   return response.data;
 };
 
+export const obtenerCumpleanios = async (token: string) => {
+  const response = await axios.get(`${api}/clientes/cumpleanios`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
 export type CrearClienteAdminBody = {
   nombre_completo: string;
   email?: string;

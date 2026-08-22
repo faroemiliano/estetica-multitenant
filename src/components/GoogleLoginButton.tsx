@@ -10,9 +10,9 @@ function GoogleLoginButton() {
 
   const handleLogin = async (credentialResponse: any) => {
     try {
-      if (!credentialResponse?.credential) return;
+      if (!credentialResponse?.credential || !slug) return;
 
-      const data = await googleLogin(credentialResponse.credential);
+      const data = await googleLogin(credentialResponse.credential, slug);
 
       // 1. Primero actualizamos estado global
       login(data.access_token, data.user);
